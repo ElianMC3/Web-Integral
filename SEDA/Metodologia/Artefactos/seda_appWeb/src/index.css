@@ -80,3 +80,135 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(154, 107, 76, 0.4);
 }
+
+/* ============================================================
+   AVISO DE PRIVACIDAD — Estilos globales (WCAG 2.1 AA)
+   Paleta: terracota #9A6B4C · variante oscura #6B4A32
+   ============================================================ */
+
+/* ── Enlace base (usado en Footer y dentro del Label) ── */
+.privacy-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #9A6B4C;
+  font-weight: 600;
+  font-size: 0.75rem;          /* 12 px */
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  border-radius: 4px;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.privacy-link:hover {
+  color: #6B4A32;
+  text-decoration-color: #6B4A32;
+}
+
+/* Estado :focus-visible — outline visible para navegación con teclado */
+.privacy-link:focus-visible {
+  outline: 2px solid #9A6B4C;
+  outline-offset: 3px;
+  text-decoration: none;
+}
+
+/* Variante inline (dentro del label del checkbox) */
+.privacy-link--inline {
+  font-size: inherit;           /* hereda el tamaño del label */
+  vertical-align: baseline;
+}
+
+/* Icono de "abre en nueva pestaña" */
+.privacy-link__icon {
+  width: 0.7rem;
+  height: 0.7rem;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+/* ── Contenedor del bloque de consentimiento ── */
+.privacy-consent-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  background: rgba(154, 107, 76, 0.04);
+  border: 1px solid rgba(154, 107, 76, 0.18);
+  border-radius: 0.75rem;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.privacy-consent-wrapper:focus-within {
+  border-color: rgba(154, 107, 76, 0.45);
+  background: rgba(154, 107, 76, 0.07);
+}
+
+/* ── Fila checkbox + label ── */
+.privacy-consent-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+/* ── Checkbox personalizado ── */
+.privacy-consent-checkbox {
+  flex-shrink: 0;
+  width: 1.125rem;             /* 18 px */
+  height: 1.125rem;
+  margin-top: 0.1rem;          /* alineación óptica con la primera línea del label */
+  border-radius: 4px;
+  border: 1.5px solid #CBD5E1;
+  background: white;
+  cursor: pointer;
+  accent-color: #9A6B4C;
+  transition: border-color 0.15s ease;
+}
+
+.privacy-consent-checkbox:hover {
+  border-color: #9A6B4C;
+}
+
+.privacy-consent-checkbox:focus-visible {
+  outline: 2px solid #9A6B4C;
+  outline-offset: 2px;
+}
+
+/* ── Label del checkbox ── */
+.privacy-consent-label {
+  font-size: 0.8125rem;        /* 13 px */
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.5;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* ── Texto de finalidad (hint legal) ── */
+.privacy-consent-hint {
+  font-size: 0.6875rem;        /* 11 px */
+  color: #94A3B8;
+  line-height: 1.55;
+  margin: 0;
+  padding-left: 1.75rem;       /* sangría alineada con el texto del label */
+}
+
+/* ── Responsividad móvil (<480 px) ── */
+@media (max-width: 480px) {
+  .privacy-link {
+    font-size: 0.8125rem;
+  }
+
+  .privacy-consent-wrapper {
+    padding: 0.75rem 0.875rem;
+  }
+
+  .privacy-consent-label {
+    font-size: 0.875rem;
+  }
+
+  .privacy-consent-hint {
+    font-size: 0.75rem;
+    padding-left: 0;           /* en móvil se quita la sangría extra */
+  }
+}

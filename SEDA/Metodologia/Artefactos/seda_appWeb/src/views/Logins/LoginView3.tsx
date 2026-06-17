@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../../context/useStore';
+import PrivacyConsent from '../../components/PrivacyConsent';
 
 export default function LoginView3() {
   const { login } = useStore();
@@ -75,6 +76,9 @@ export default function LoginView3() {
                 <span className="text-[6px] text-slate-400">Privacy - Terms</span>
               </div>
             </div>
+
+            {/* Aviso de Privacidad — consentimiento obligatorio */}
+            <PrivacyConsent id="privacy-consent-login3" />
 
             {/* Submit Button */}
             <button

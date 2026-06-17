@@ -2,6 +2,7 @@ import { useStore } from './context/useStore';
 import LoginContainer from './views/Logins/LoginContainer';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import Dashboard from './views/Dashboard';
 import Reception from './views/Reception';
 import Packaging from './views/Packaging';
@@ -43,6 +44,9 @@ export default function App() {
         <main className="flex-grow pt-16 bg-slate-50/40">
           {renderActiveView()}
         </main>
+
+        {/* Global footer — Aviso de Privacidad */}
+        <Footer />
       </div>
     </div>
   );
