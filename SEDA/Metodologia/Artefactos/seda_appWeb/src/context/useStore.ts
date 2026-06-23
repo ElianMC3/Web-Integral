@@ -79,7 +79,6 @@ interface AppState {
   isAuthenticated: boolean;
   currentUser: { name: string; office: string; avatar?: string } | null;
   activeTab: 'dashboard' | 'reception' | 'packaging' | 'logistics';
-  loginView: 1 | 2 | 3;
   donations: Donation[];
   kanbanTasks: KanbanTask[];
   logisticsUnits: LogisticsUnit[];
@@ -94,7 +93,6 @@ interface AppState {
   login: (email: string) => void;
   logout: () => void;
   setTab: (tab: 'dashboard' | 'reception' | 'packaging' | 'logistics') => void;
-  setLoginView: (view: 1 | 2 | 3) => void;
   addDonation: (donation: Omit<Donation, 'id' | 'timestamp'>) => void;
   moveKanbanTask: (id: string, column: 'PENDIENTE' | 'EN_PROCESO' | 'CONTROL_CALIDAD') => void;
   resolveOperationalAlert: (id: string, action: string) => void;
@@ -109,7 +107,6 @@ export const useStore = create<AppState>((set) => ({
   isAuthenticated: false,
   currentUser: null,
   activeTab: 'dashboard',
-  loginView: 1,
 
   donations: [
     {
@@ -307,8 +304,6 @@ export const useStore = create<AppState>((set) => ({
   logout: () => set({ isAuthenticated: false, currentUser: null, activeTab: 'dashboard' }),
 
   setTab: (tab) => set({ activeTab: tab }),
-
-  setLoginView: (view) => set({ loginView: view }),
 
   addDonation: (donation) => set((state) => {
     const newId = `DON-${Math.floor(1000 + Math.random() * 9000)}`;
