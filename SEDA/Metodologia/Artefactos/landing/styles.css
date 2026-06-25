@@ -176,21 +176,8 @@ nav.navbar.navbar--scrolled {
   gap: 10px;
 }
 
-.navbar-logo .logo-mark {
-  width: 38px;
-  height: 38px;
-  background: linear-gradient(135deg, var(--color-green-700), var(--color-green-500));
-  border-radius: var(--radius-sm);
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-weight: 900;
-  font-size: 1.05rem;
-  letter-spacing: -1px;
-}
-
 .navbar-logo .logo-text {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: var(--color-slate-900);
   letter-spacing: -0.5px;
@@ -586,16 +573,7 @@ section.how-it-works {
   line-height: 1.65;
 }
 
-/* Connector lines between steps */
-.step-card + .step-card::after {
-  content: '';
-  position: absolute;
-  top: 54px;
-  left: -13px;
-  width: 26px;
-  height: 2px;
-  background: var(--color-green-300);
-}
+
 
 /* ============================================================
    BENEFICIOS CLAVE
@@ -792,17 +770,17 @@ footer.footer {
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-.footer-brand .logo-mark {
-  width: 44px;
-  height: 44px;
-  background: linear-gradient(135deg, var(--color-green-500), var(--color-green-300));
-  border-radius: var(--radius-sm);
-  display: grid;
-  place-items: center;
-  color: var(--color-green-900);
-  font-weight: 900;
-  font-size: 1.15rem;
-  margin-bottom: 16px;
+.footer-logo-text {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.footer-logo-text span {
+  color: var(--color-green-300);
 }
 
 .footer-brand p {
