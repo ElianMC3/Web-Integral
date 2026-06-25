@@ -1,25 +1,23 @@
 /* ============================================================
    SEDA — Landing Page · styles.css
    Sistema de Entrega y Distribución Alimentaria
-   Equipo 4 · UTCV · 2025
+   Refactorizado: enfoque cliente / usuario final
    ============================================================ */
 
 /* ============================================================
-   VARIABLES DE DISEÑO — SISTEMA DE TOKENS
+   TOKENS DE DISEÑO
    ============================================================ */
 :root {
   --color-bg:            #f5f7f4;
   --color-surface:       #ffffff;
   --color-surface-alt:   #eef2ec;
 
-  /* Verde orgánico (sustentabilidad) */
   --color-green-900:     #1b3a2a;
   --color-green-700:     #2d6a4f;
   --color-green-500:     #4a9068;
   --color-green-300:     #95c8a8;
   --color-green-100:     #d8ede1;
 
-  /* Gris pizarra */
   --color-slate-900:     #1e2328;
   --color-slate-700:     #374151;
   --color-slate-500:     #6b7280;
@@ -71,7 +69,7 @@ a {
 }
 
 /* ============================================================
-   UTILIDADES GLOBALES
+   UTILIDADES
    ============================================================ */
 .container {
   width: 100%;
@@ -149,7 +147,7 @@ a {
 }
 
 /* ============================================================
-   NAVIGATION
+   NAVEGACIÓN
    ============================================================ */
 nav.navbar {
   position: sticky;
@@ -159,6 +157,10 @@ nav.navbar {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--color-slate-300);
+}
+
+nav.navbar.navbar--scrolled {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
 }
 
 .navbar-inner {
@@ -216,8 +218,26 @@ nav.navbar {
   color: var(--color-green-700);
 }
 
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+}
+
+.navbar-toggle span {
+  width: 22px;
+  height: 2px;
+  background: var(--color-slate-700);
+  border-radius: 2px;
+  transition: var(--transition);
+}
+
 /* ============================================================
-   SECCIÓN 1 — HERO
+   HERO
    ============================================================ */
 section.hero {
   position: relative;
@@ -226,7 +246,6 @@ section.hero {
   padding: 120px 0 100px;
 }
 
-/* Decorative mesh background */
 section.hero::before {
   content: '';
   position: absolute;
@@ -237,7 +256,6 @@ section.hero::before {
   pointer-events: none;
 }
 
-/* Grid pattern overlay */
 section.hero::after {
   content: '';
   position: absolute;
@@ -341,7 +359,7 @@ section.hero::after {
   transform: translateY(-2px);
 }
 
-/* Floating stats strip */
+/* Stats strip */
 .hero-stats {
   position: relative;
   z-index: 1;
@@ -376,7 +394,7 @@ section.hero::after {
 }
 
 /* ============================================================
-   SECCIÓN 2 — PROBLEMA Y SOLUCIÓN
+   PROBLEMA Y SOLUCIÓN
    ============================================================ */
 section.problem-solution {
   padding: 96px 0;
@@ -479,37 +497,41 @@ section.problem-solution {
 }
 
 /* ============================================================
-   SECCIÓN 3 — MÓDULOS OPERATIVOS
+   ¿CÓMO FUNCIONA? — Pasos del proceso
    ============================================================ */
-section.modules {
+section.how-it-works {
   padding: 96px 0;
   background: var(--color-surface-alt);
 }
 
-.modules-header {
+.how-header {
   text-align: center;
-  margin-bottom: 56px;
+  margin-bottom: 64px;
 }
 
-.modules-grid {
+.how-header .section-subtitle {
+  margin-inline: auto;
+}
+
+.steps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 28px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  counter-reset: step-counter;
 }
 
-/* CSS-only interactive card via :hover */
-.module-card {
+.step-card {
   background: var(--color-surface);
   border: 1px solid var(--color-slate-300);
   border-radius: var(--radius-lg);
-  padding: 36px 32px;
-  cursor: default;
+  padding: 36px 28px;
+  text-align: center;
   transition: var(--transition);
   position: relative;
   overflow: hidden;
 }
 
-.module-card::before {
+.step-card::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
@@ -520,243 +542,238 @@ section.modules {
   transition: transform 0.35s ease;
 }
 
-.module-card:hover {
+.step-card:hover {
   border-color: var(--color-green-300);
   box-shadow: var(--shadow-hover);
   transform: translateY(-6px);
 }
 
-.module-card:hover::before {
+.step-card:hover::before {
   transform: scaleX(1);
 }
 
-.module-number {
-  font-size: 0.7rem;
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-green-100);
+  color: var(--color-green-700);
+  font-size: 1.1rem;
   font-weight: 800;
-  letter-spacing: 0.2em;
-  color: var(--color-green-500);
-  text-transform: uppercase;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
-.module-icon {
-  font-size: 2rem;
+.step-icon {
+  font-size: 2.2rem;
   margin-bottom: 16px;
   display: block;
 }
 
-.module-name {
-  font-size: 1.1rem;
+.step-title {
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--color-slate-900);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   line-height: 1.3;
 }
 
-.module-desc {
+.step-desc {
   font-size: 0.88rem;
   color: var(--color-slate-500);
   line-height: 1.65;
-  margin-bottom: 20px;
 }
 
-.module-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.tag {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--color-green-700);
-  background: var(--color-green-100);
-  padding: 3px 10px;
-  border-radius: 100px;
+/* Connector lines between steps */
+.step-card + .step-card::after {
+  content: '';
+  position: absolute;
+  top: 54px;
+  left: -13px;
+  width: 26px;
+  height: 2px;
+  background: var(--color-green-300);
 }
 
 /* ============================================================
-   SECCIÓN 4 — ARQUITECTURA Y ROLES
+   BENEFICIOS CLAVE
    ============================================================ */
-section.architecture {
+section.benefits {
   padding: 96px 0;
-  background: var(--color-slate-900);
+  background: var(--color-surface);
+}
+
+.benefits-header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.benefits-header .section-subtitle {
+  margin-inline: auto;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.benefit-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-slate-300);
+  border-radius: var(--radius-lg);
+  padding: 36px 30px;
+  transition: var(--transition);
+}
+
+.benefit-card:hover {
+  border-color: var(--color-green-300);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-4px);
+}
+
+.benefit-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  background: var(--color-green-100);
+  display: grid;
+  place-items: center;
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+}
+
+.benefit-title {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--color-slate-900);
+  margin-bottom: 10px;
+}
+
+.benefit-desc {
+  font-size: 0.88rem;
+  color: var(--color-slate-500);
+  line-height: 1.65;
+}
+
+/* ============================================================
+   IMPACTO — Métricas sociales
+   ============================================================ */
+section.impact {
+  padding: 96px 0;
+  background: linear-gradient(150deg, var(--color-green-900) 0%, #24402e 60%, var(--color-slate-900) 100%);
   position: relative;
   overflow: hidden;
 }
 
-section.architecture::before {
+section.impact::before {
   content: '';
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(circle at 85% 30%, rgba(45, 106, 79, 0.18) 0%, transparent 50%),
-    radial-gradient(circle at 15% 70%, rgba(74, 144, 104, 0.10) 0%, transparent 45%);
+    radial-gradient(circle at 80% 30%, rgba(45, 106, 79, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 20% 70%, rgba(74, 144, 104, 0.12) 0%, transparent 45%);
   pointer-events: none;
 }
 
-.arch-inner {
+.impact-inner {
   position: relative;
   z-index: 1;
 }
 
-.arch-header {
-  margin-bottom: 56px;
+.impact-header {
+  text-align: center;
+  margin-bottom: 64px;
 }
 
-.arch-header .section-label {
+.impact-header .section-label {
   background: rgba(149, 200, 168, 0.15);
   color: var(--color-green-300);
 }
 
-.arch-header .section-title { color: #ffffff; }
+.impact-header .section-title {
+  color: #fff;
+}
 
-.arch-header .section-subtitle { color: rgba(255,255,255,0.55); }
+.impact-header .section-subtitle {
+  color: rgba(255,255,255,0.55);
+  margin-inline: auto;
+}
 
-.arch-layout {
+.impact-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  align-items: start;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
 }
 
-/* Stack visual */
-.arch-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.arch-layer {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+.impact-card {
+  text-align: center;
+  padding: 32px 20px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: var(--radius-md);
-  padding: 16px 20px;
+  border-radius: var(--radius-lg);
   transition: var(--transition);
 }
 
-.arch-layer:hover {
+.impact-card:hover {
   background: rgba(255,255,255,0.08);
   border-color: var(--color-green-500);
-  transform: translateX(6px);
+  transform: translateY(-4px);
 }
 
-.arch-layer-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.arch-layer-label {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.85);
-}
-
-.arch-layer-desc {
-  font-size: 0.78rem;
-  color: rgba(255,255,255,0.4);
-  margin-left: auto;
-  text-align: right;
-}
-
-/* Tech pills */
-.arch-tech {
-  margin-top: 28px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.tech-pill {
-  font-size: 0.8rem;
-  font-weight: 600;
+.impact-value {
+  font-size: 2.6rem;
+  font-weight: 800;
   color: var(--color-green-300);
-  background: rgba(149, 200, 168, 0.10);
-  border: 1px solid rgba(149, 200, 168, 0.25);
-  padding: 6px 16px;
-  border-radius: 100px;
+  line-height: 1;
+  margin-bottom: 8px;
 }
 
-/* Roles */
-.roles-block {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.impact-label {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.5;
 }
 
-.role-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: var(--radius-md);
-  padding: 18px 22px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  transition: var(--transition);
+/* ============================================================
+   CTA FINAL
+   ============================================================ */
+section.cta-final {
+  padding: 96px 0;
+  background: var(--color-surface-alt);
 }
 
-.role-card:hover {
-  background: rgba(255,255,255,0.07);
-  border-color: rgba(149, 200, 168, 0.3);
-  transform: translateX(4px);
-}
-
-.role-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-green-700), var(--color-green-500));
-  display: grid;
-  place-items: center;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.role-name {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: rgba(255,255,255,0.9);
-}
-
-.role-title {
-  font-size: 0.78rem;
-  color: rgba(255,255,255,0.4);
-  margin-top: 2px;
-}
-
-/* PWA Banner */
-.pwa-banner {
-  margin-top: 56px;
-  background: linear-gradient(135deg, rgba(45, 106, 79, 0.25), rgba(30, 35, 40, 0.3));
-  border: 1px solid rgba(149, 200, 168, 0.2);
+.cta-box {
+  max-width: 720px;
+  margin-inline: auto;
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-slate-300);
   border-radius: var(--radius-lg);
-  padding: 32px 40px;
+  padding: 56px 48px;
+  box-shadow: var(--shadow-card);
+}
+
+.cta-box .section-title {
+  margin-bottom: 16px;
+}
+
+.cta-box p {
+  font-size: 1.02rem;
+  color: var(--color-slate-500);
+  max-width: 48ch;
+  margin-inline: auto;
+  margin-bottom: 32px;
+  line-height: 1.7;
+}
+
+.cta-buttons {
   display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.pwa-icon {
-  font-size: 2.5rem;
-  flex-shrink: 0;
-}
-
-.pwa-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--color-green-300);
-  margin-bottom: 6px;
-}
-
-.pwa-desc {
-  font-size: 0.87rem;
-  color: rgba(255,255,255,0.5);
-  line-height: 1.6;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 /* ============================================================
@@ -822,32 +839,6 @@ footer.footer {
   color: var(--color-green-300);
 }
 
-.footer-roles {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.footer-role-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-role-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--color-green-500);
-  flex-shrink: 0;
-}
-
-.footer-role-name {
-  font-size: 0.84rem;
-  color: rgba(255,255,255,0.5);
-}
-
 .footer-bottom {
   padding-top: 28px;
   display: flex;
@@ -873,15 +864,49 @@ footer.footer {
 }
 
 /* ============================================================
+   ANIMACIONES DE ENTRADA (activadas por JS)
+   ============================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 900px) {
-  .ps-grid          { grid-template-columns: 1fr; }
-  .arch-layout      { grid-template-columns: 1fr; }
-  .footer-top       { grid-template-columns: 1fr 1fr; }
-  .footer-brand     { grid-column: 1 / -1; }
-  .navbar-links     { display: none; }
-  .hero-stats       { flex-direction: column; }
+  .ps-grid            { grid-template-columns: 1fr; }
+  .steps-grid          { grid-template-columns: 1fr 1fr; }
+  .benefits-grid       { grid-template-columns: 1fr; }
+  .impact-grid         { grid-template-columns: 1fr 1fr; }
+  .footer-top          { grid-template-columns: 1fr 1fr; }
+  .footer-brand        { grid-column: 1 / -1; }
+  .navbar-links        { display: none; }
+  .hero-stats          { flex-direction: column; }
+
+  .navbar-toggle       { display: flex; }
+
+  /* Mobile nav open state */
+  .navbar-links--open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 68px;
+    left: 0;
+    right: 0;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(14px);
+    padding: 24px;
+    gap: 16px;
+    border-bottom: 1px solid var(--color-slate-300);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
 
   .hero-stat:not(:last-child) {
     border-right: none;
@@ -890,16 +915,14 @@ footer.footer {
     margin-bottom: 4px;
   }
 
-  .pwa-banner {
-    flex-direction: column;
-    text-align: center;
-  }
+  .step-card + .step-card::after { display: none; }
 }
 
 @media (max-width: 580px) {
-  .hero             { padding: 80px 0 64px; }
-  .footer-top       { grid-template-columns: 1fr; }
-  .modules-grid     { grid-template-columns: 1fr; }
+  .hero               { padding: 80px 0 64px; }
+  .footer-top          { grid-template-columns: 1fr; }
+  .steps-grid          { grid-template-columns: 1fr; }
+  .impact-grid         { grid-template-columns: 1fr; }
 
   .hero-cta {
     flex-direction: column;
@@ -909,6 +932,17 @@ footer.footer {
   .hero-cta .btn,
   .hero-cta .btn-hero-outline {
     width: 100%;
+    justify-content: center;
+  }
+
+  .cta-box { padding: 40px 24px; }
+
+  .cta-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cta-buttons .btn {
     justify-content: center;
   }
 }

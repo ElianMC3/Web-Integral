@@ -1,31 +1,26 @@
 /**
  * SEDA — Landing Page · main.js
- * Sistema de Entrega y Distribución Alimentaria
- * Equipo 4 · UTCV · 2025
+ * Comportamientos interactivos orientados al usuario final.
  *
- * Comportamientos interactivos de la landing:
- *  - Navbar: efecto de sombra al hacer scroll
- *  - Animaciones de entrada por intersección (IntersectionObserver)
- *  - Contador animado de las métricas del Hero
- *  - Menú mobile (hamburger toggle)
- *  - Scroll suave a secciones internas
+ *  1. Navbar — sombra al hacer scroll
+ *  2. Menú mobile — hamburger toggle
+ *  3. Animaciones de entrada — IntersectionObserver
+ *  4. Contadores animados — métricas del Hero e Impacto
+ *  5. Scroll suave — navegación interna
+ *  6. Año dinámico — footer
  */
 
 'use strict';
 
 /* ============================================================
-   1. NAVBAR — Sombra elevada al hacer scroll
+   1. NAVBAR — Sombra al hacer scroll
    ============================================================ */
 (function initNavbarScroll() {
   const navbar = document.querySelector('nav.navbar');
   if (!navbar) return;
 
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 10) {
-      navbar.classList.add('navbar--scrolled');
-    } else {
-      navbar.classList.remove('navbar--scrolled');
-    }
+    navbar.classList.toggle('navbar--scrolled', window.scrollY > 10);
   }, { passive: true });
 })();
 
@@ -33,8 +28,8 @@
    2. MENÚ MOBILE — Toggle hamburger
    ============================================================ */
 (function initMobileMenu() {
-  const toggleBtn  = document.getElementById('nav-toggle');
-  const navLinks   = document.querySelector('.navbar-links');
+  const toggleBtn = document.getElementById('nav-toggle');
+  const navLinks  = document.getElementById('nav-links');
   if (!toggleBtn || !navLinks) return;
 
   toggleBtn.addEventListener('click', () => {
@@ -58,7 +53,7 @@
    ============================================================ */
 (function initRevealAnimations() {
   const targets = document.querySelectorAll(
-    '.ps-card, .module-card, .arch-layer, .role-card, .pwa-banner, .hero-stats'
+    '.ps-card, .step-card, .benefit-card, .impact-card, .cta-box, .hero-stats'
   );
 
   if (!('IntersectionObserver' in window) || targets.length === 0) return;
@@ -77,26 +72,24 @@
 
   targets.forEach((el, i) => {
     el.classList.add('reveal');
-    // Escalonar la animación según el índice dentro del mismo grupo
     el.style.transitionDelay = `${(i % 4) * 80}ms`;
     observer.observe(el);
   });
 })();
 
 /* ============================================================
-   4. CONTADOR ANIMADO — Métricas del Hero
+   4. CONTADORES ANIMADOS — Métricas
    ============================================================ */
 (function initCounterAnimation() {
   const counters = document.querySelectorAll('[data-counter]');
-  if (!counters.length) return;
+  if (!counters.length || !('IntersectionObserver' in window)) return;
 
   const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
 
   function animateCounter(el) {
     const target   = parseFloat(el.dataset.counter);
     const suffix   = el.dataset.suffix || '';
-    const prefix   = el.dataset.prefix || '';
-    const duration = 1800; // ms
+    const duration = 1800;
     const start    = performance.now();
 
     function update(now) {
@@ -104,7 +97,7 @@
       const progress = Math.min(elapsed / duration, 1);
       const value    = easeOutQuart(progress) * target;
 
-      el.textContent = prefix + (Number.isInteger(target)
+      el.textContent = (Number.isInteger(target)
         ? Math.round(value)
         : value.toFixed(1)) + suffix;
 
@@ -114,24 +107,27 @@
     requestAnimationFrame(update);
   }
 
-  // Disparar cuando el hero-stats entra en vista
-  const statsSection = document.querySelector('.hero-stats');
-  if (!statsSection || !('IntersectionObserver' in window)) return;
+  // Observar cada grupo de contadores por separado
+  const counterSections = document.querySelectorAll('.hero-stats, .impact-grid');
+  counterSections.forEach(section => {
+    const sectionCounters = section.querySelectorAll('[data-counter]');
+    if (!sectionCounters.length) return;
 
-  const once = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        counters.forEach(animateCounter);
-        once.disconnect();
-      }
-    });
-  }, { threshold: 0.5 });
+    const once = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          sectionCounters.forEach(animateCounter);
+          once.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
 
-  once.observe(statsSection);
+    once.observe(section);
+  });
 })();
 
 /* ============================================================
-   5. SCROLL SUAVE — Botones CTA internos
+   5. SCROLL SUAVE — Navegación interna
    ============================================================ */
 (function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -152,7 +148,7 @@
 })();
 
 /* ============================================================
-   6. AÑO DINÁMICO EN EL FOOTER
+   6. AÑO DINÁMICO — Footer
    ============================================================ */
 (function setCurrentYear() {
   const yearEl = document.getElementById('footer-year');

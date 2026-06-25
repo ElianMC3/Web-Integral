@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="SEDA – Sistema de Entrega y Distribución Alimentaria. Ecosistema digital para optimizar la logística de bancos de alimentos en Veracruz." />
-  <title>SEDA — Sistema de Entrega y Distribución Alimentaria</title>
+  <meta name="description" content="SEDA – Sistema de Entrega y Distribución Alimentaria. Reduce el desperdicio, optimiza tu logística y llega a más comunidades en Veracruz." />
+  <title>SEDA — Logística alimentaria inteligente para bancos de alimentos</title>
 
-  <!-- Hoja de estilos externa -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -22,15 +21,13 @@
         <span class="logo-text">SEDA<span>.</span></span>
       </a>
 
-      <!-- Links de navegación (se ocultan en mobile) -->
-      <ul class="navbar-links">
-        <li><a href="#problema">Contexto</a></li>
-        <li><a href="#modulos">Módulos</a></li>
-        <li><a href="#arquitectura">Arquitectura</a></li>
-        <li><a href="#footer">Equipo</a></li>
+      <ul class="navbar-links" id="nav-links">
+        <li><a href="#problema">El Problema</a></li>
+        <li><a href="#como-funciona">¿Cómo Funciona?</a></li>
+        <li><a href="#beneficios">Beneficios</a></li>
+        <li><a href="#impacto">Impacto</a></li>
       </ul>
 
-      <!-- Botón hamburger (visible solo en mobile vía CSS) -->
       <button
         id="nav-toggle"
         class="navbar-toggle"
@@ -41,7 +38,7 @@
         <span></span><span></span><span></span>
       </button>
 
-      <a href="#" class="btn btn-primary">Acceder al Sistema</a>
+      <a href="#contacto" class="btn btn-primary" id="nav-cta">Solicitar Demo</a>
 
     </div>
   </nav>
@@ -49,7 +46,7 @@
   <main>
 
     <!-- ============================================================
-         SECCIÓN 1 — HERO / IMPACTO
+         SECCIÓN 1 — HERO
          ============================================================ -->
     <section class="hero" id="hero" aria-labelledby="hero-heading">
       <div class="container">
@@ -58,48 +55,48 @@
 
           <div class="hero-badge">
             <span class="dot"></span>
-            Sistema Activo — Región Cuitláhuac, Veracruz
+            Activo en la región Cuitláhuac, Veracruz
           </div>
 
           <h1 class="hero-title" id="hero-heading">
-            Optimizando la logística alimentaria<br />
-            para <em>transformar comunidades</em>.
+            Reduce el desperdicio alimentario<br />
+            y llega a <em>más comunidades</em>.
           </h1>
 
           <p class="hero-subtitle">
-            SEDA es el ecosistema digital multicapa diseñado para conectar donantes,
-            automatizar inventarios críticos y trazar rutas eficientes de distribución
-            hacia zonas vulnerables.
+            SEDA conecta donantes con bancos de alimentos, automatiza el control de
+            inventarios y traza rutas de distribución eficientes para que cada donación
+            llegue a tiempo a quienes más la necesitan.
           </p>
 
           <div class="hero-cta">
-            <a href="#modulos" class="btn btn-primary" id="cta-acceder">
-              &#9654; Acceder al Sistema
+            <a href="#contacto" class="btn btn-primary" id="cta-demo">
+              Solicitar una Demo
             </a>
-            <a href="#arquitectura" class="btn-hero-outline" id="cta-docs">
-              &#128196; Ver Documentación Técnica
+            <a href="#como-funciona" class="btn-hero-outline" id="cta-how">
+              ¿Cómo funciona?
             </a>
           </div>
 
         </div>
 
-        <!-- Métricas de impacto (data-counter activado por JS) -->
+        <!-- Métricas de impacto -->
         <div class="hero-stats" aria-label="Métricas de impacto">
           <div class="hero-stat">
-            <div class="stat-value" data-counter="4" data-suffix="+">4+</div>
-            <div class="stat-label">Módulos operativos integrados</div>
+            <div class="stat-value" data-counter="85" data-suffix="%">85%</div>
+            <div class="stat-label">Reducción de merma por caducidad</div>
           </div>
           <div class="hero-stat">
             <div class="stat-value" data-counter="100" data-suffix="%">100%</div>
-            <div class="stat-label">Trazabilidad en tiempo real</div>
+            <div class="stat-label">Trazabilidad de cada donación</div>
           </div>
           <div class="hero-stat">
-            <div class="stat-value">PWA</div>
-            <div class="stat-label">Operación offline en zonas rurales</div>
+            <div class="stat-value" data-counter="3" data-suffix="x">3x</div>
+            <div class="stat-label">Más entregas a tiempo</div>
           </div>
           <div class="hero-stat">
-            <div class="stat-value" data-counter="0" data-suffix=" t.">0 t.</div>
-            <div class="stat-label">Meta de desperdicio por caducidad</div>
+            <div class="stat-value">24/7</div>
+            <div class="stat-label">Funciona incluso sin internet</div>
           </div>
         </div>
 
@@ -107,17 +104,17 @@
     </section>
 
     <!-- ============================================================
-         SECCIÓN 2 — EL PROBLEMA Y NUESTRA SOLUCIÓN
+         SECCIÓN 2 — EL PROBLEMA Y LA SOLUCIÓN
          ============================================================ -->
     <section class="problem-solution" id="problema" aria-labelledby="ps-heading">
       <div class="container">
 
         <div class="ps-header">
-          <span class="section-label">Contexto de Negocio</span>
-          <h2 class="section-title" id="ps-heading">El problema que resolvemos</h2>
+          <span class="section-label">¿Por qué SEDA?</span>
+          <h2 class="section-title" id="ps-heading">Cada año se pierden toneladas de alimentos por falta de organización</h2>
           <p class="section-subtitle">
-            Los bancos de alimentos de la región enfrentan brechas operativas críticas que
-            generan pérdidas masivas de donaciones antes de llegar a quienes las necesitan.
+            Los bancos de alimentos enfrentan retos operativos que provocan que donaciones
+            perfectamente aprovechables nunca lleguen a las familias que las necesitan.
           </p>
         </div>
 
@@ -126,23 +123,23 @@
           <!-- Bloque: Problemática -->
           <div class="ps-card problem">
             <div class="ps-card-icon">⚠️</div>
-            <h3 class="ps-card-title">La Problemática Actual</h3>
+            <h3 class="ps-card-title">Sin SEDA</h3>
             <ul>
               <li>
                 <span class="bullet">✕</span>
-                <span><strong>Registros manuales ineficientes:</strong> Hojas de cálculo y apuntes en papel generan errores humanos, duplicados y falta de trazabilidad histórica en cada recepción de donación.</span>
+                <span><strong>Registros en papel:</strong> Hojas de cálculo y apuntes manuales generan errores, duplicados y pérdida de información valiosa.</span>
               </li>
               <li>
                 <span class="bullet">✕</span>
-                <span><strong>Pérdida de toneladas por caducidad:</strong> Sin alertas tempranas ni rotación inteligente de inventario, los alimentos perecederos expiran antes de distribuirse.</span>
+                <span><strong>Alimentos que caducan en bodega:</strong> Sin alertas de vencimiento, los perecederos expiran antes de poder distribuirse.</span>
               </li>
               <li>
                 <span class="bullet">✕</span>
-                <span><strong>Ruptura de la cadena de frío:</strong> La falta de telemetría de temperatura en tiempo real durante el transporte compromete la inocuidad alimentaria de productos sensibles.</span>
+                <span><strong>Cadena de frío rota:</strong> Sin monitoreo de temperatura, los productos sensibles llegan comprometidos a su destino.</span>
               </li>
               <li>
                 <span class="bullet">✕</span>
-                <span><strong>Cero visibilidad logística:</strong> Los directores no cuentan con un panel unificado para monitorear entregas, despachos y KPIs de impacto social en tiempo real.</span>
+                <span><strong>Cero visibilidad:</strong> No existe un tablero para saber qué se entregó, qué falta y a quién se atendió.</span>
               </li>
             </ul>
           </div>
@@ -150,23 +147,23 @@
           <!-- Bloque: Solución SEDA -->
           <div class="ps-card solution">
             <div class="ps-card-icon">✅</div>
-            <h3 class="ps-card-title">La Solución SEDA</h3>
+            <h3 class="ps-card-title">Con SEDA</h3>
             <ul>
               <li>
                 <span class="bullet">✓</span>
-                <span><strong>Clasificación automatizada:</strong> SEDA diferencia automáticamente entre Perecederos y Abarrotes desde el módulo de entrada, asignando protocolos de almacenamiento y alertas específicas a cada categoría.</span>
+                <span><strong>Todo digitalizado:</strong> Cada donación se registra al instante con peso, lote, fecha de caducidad y temperatura.</span>
               </li>
               <li>
                 <span class="bullet">✓</span>
-                <span><strong>Pesaje digital integrado:</strong> Control preciso de peso por lote con registro inmutable de origen, fecha de caducidad y temperatura de llegada para perecederos.</span>
+                <span><strong>Alertas automáticas:</strong> El sistema avisa antes de que un producto esté por vencer para priorizarlo en la distribución.</span>
               </li>
               <li>
                 <span class="bullet">✓</span>
-                <span><strong>Panel Estratégico para directores:</strong> Dashboard ejecutivo con métricas de impacto, alertas de merma preventiva y estado en vivo de cada ruta de distribución activa.</span>
+                <span><strong>Rutas inteligentes:</strong> Asigna transporte refrigerado o seco según el tipo de alimento y optimiza los tiempos de entrega.</span>
               </li>
               <li>
                 <span class="bullet">✓</span>
-                <span><strong>Trazabilidad extremo a extremo:</strong> Historial blindado e inmutable desde la donación hasta la confirmación digital de entrega en comedores y albergues.</span>
+                <span><strong>Panel de control en vivo:</strong> Visualiza el estado de cada entrega, métricas de impacto y confirmaciones digitales desde un solo lugar.</span>
               </li>
             </ul>
           </div>
@@ -176,96 +173,64 @@
     </section>
 
     <!-- ============================================================
-         SECCIÓN 3 — MÓDULOS OPERATIVOS CENTRALES
+         SECCIÓN 3 — ¿CÓMO FUNCIONA?
          ============================================================ -->
-    <section class="modules" id="modulos" aria-labelledby="modules-heading">
+    <section class="how-it-works" id="como-funciona" aria-labelledby="how-heading">
       <div class="container">
 
-        <div class="modules-header">
-          <span class="section-label">Módulos Operativos</span>
-          <h2 class="section-title" id="modules-heading">Cuatro pilares del ecosistema SEDA</h2>
-          <p class="section-subtitle" style="margin-inline: auto; max-width: 58ch; color: var(--color-slate-500);">
-            Cada módulo opera de forma autónoma e integrada, cubriendo el ciclo completo
-            desde la recepción de la donación hasta la confirmación de entrega.
+        <div class="how-header">
+          <span class="section-label">Así de fácil</span>
+          <h2 class="section-title" id="how-heading">¿Cómo funciona SEDA?</h2>
+          <p class="section-subtitle">
+            Desde que llega una donación hasta que se confirma la entrega en un comedor
+            o albergue, SEDA automatiza cada paso.
           </p>
         </div>
 
-        <div class="modules-grid">
+        <div class="steps-grid">
 
-          <!-- Módulo 1 -->
-          <article class="module-card" id="modulo-entrada">
-            <p class="module-number">Módulo 01</p>
-            <span class="module-icon" aria-hidden="true">📦</span>
-            <h3 class="module-name">Control de Entrada y Recepción</h3>
-            <p class="module-desc">
-              Captura obligatoria y validada de todos los datos críticos en el momento de
-              recibir cada donación. Registro inmutable con trazabilidad desde el primer
-              contacto con el alimento.
+          <!-- Paso 1 -->
+          <article class="step-card">
+            <span class="step-number">1</span>
+            <span class="step-icon" aria-hidden="true">📦</span>
+            <h3 class="step-title">Recepción de la donación</h3>
+            <p class="step-desc">
+              Se registra el peso, lote, fecha de caducidad y temperatura de llegada.
+              Todo queda guardado al instante.
             </p>
-            <div class="module-tags">
-              <span class="tag">Peso (kg)</span>
-              <span class="tag">N.º de Lote</span>
-              <span class="tag">Fecha Caducidad</span>
-              <span class="tag">Temp. Llegada °C</span>
-              <span class="tag">Registro inmutable</span>
-            </div>
           </article>
 
-          <!-- Módulo 2 -->
-          <article class="module-card" id="modulo-clasificacion">
-            <p class="module-number">Módulo 02</p>
-            <span class="module-icon" aria-hidden="true">🔍</span>
-            <h3 class="module-name">Clasificación e Inspección de Calidad</h3>
-            <p class="module-desc">
-              Consolidación de lotes mediante lectura de código de barras y clasificación
-              automática entre Perecederos y Abarrotes. Alertas preventivas de merma
-              basadas en fechas de caducidad y condiciones de almacenamiento.
+          <!-- Paso 2 -->
+          <article class="step-card">
+            <span class="step-number">2</span>
+            <span class="step-icon" aria-hidden="true">🔍</span>
+            <h3 class="step-title">Clasificación automática</h3>
+            <p class="step-desc">
+              SEDA separa perecederos de abarrotes, escanea códigos de barras y genera
+              alertas si algo está próximo a vencer.
             </p>
-            <div class="module-tags">
-              <span class="tag">Código de barras</span>
-              <span class="tag">Perecederos</span>
-              <span class="tag">Abarrotes</span>
-              <span class="tag">Alertas de merma</span>
-              <span class="tag">Control QA</span>
-            </div>
           </article>
 
-          <!-- Módulo 3 -->
-          <article class="module-card" id="modulo-logistica">
-            <p class="module-number">Módulo 03</p>
-            <span class="module-icon" aria-hidden="true">🚛</span>
-            <h3 class="module-name">Logística y Gestión de Despacho</h3>
-            <p class="module-desc">
-              Planificación y monitoreo de rutas de distribución con tiempos estimados de
-              llegada (ETA) en tiempo real. Asignación inteligente de transporte seco o
-              refrigerado según el tipo de carga y alertas automáticas ante desviaciones de ruta.
+          <!-- Paso 3 -->
+          <article class="step-card">
+            <span class="step-number">3</span>
+            <span class="step-icon" aria-hidden="true">🚛</span>
+            <h3 class="step-title">Despacho y logística</h3>
+            <p class="step-desc">
+              Asigna rutas optimizadas y el transporte adecuado (seco o refrigerado).
+              Monitorea la entrega en tiempo real.
             </p>
-            <div class="module-tags">
-              <span class="tag">ETA en vivo</span>
-              <span class="tag">Transporte seco</span>
-              <span class="tag">Cadena de frío</span>
-              <span class="tag">Alerta de desvío</span>
-              <span class="tag">Rutas óptimas</span>
-            </div>
           </article>
 
-          <!-- Módulo 4 -->
-          <article class="module-card" id="modulo-telemetria">
-            <p class="module-number">Módulo 04</p>
-            <span class="module-icon" aria-hidden="true">📡</span>
-            <h3 class="module-name">Telemetría y Entrega</h3>
-            <p class="module-desc">
-              Historial blindado de entregas exitosas con confirmación digital firmada en
-              destino. Registro de cada comedor, albergue o punto de distribución atendido,
-              con evidencia fotográfica y firma del receptor como comprobante social irrefutable.
+          <!-- Paso 4 -->
+          <article class="step-card">
+            <span class="step-number">4</span>
+            <span class="step-icon" aria-hidden="true">✅</span>
+            <h3 class="step-title">Confirmación de entrega</h3>
+            <p class="step-desc">
+              El receptor firma digitalmente. Queda un historial completo de cada comedor
+              y albergue atendido.
             </p>
-            <div class="module-tags">
-              <span class="tag">Confirmación digital</span>
-              <span class="tag">Comedores</span>
-              <span class="tag">Albergues</span>
-              <span class="tag">Historial blindado</span>
-              <span class="tag">KPIs de impacto</span>
-            </div>
           </article>
 
         </div>
@@ -273,134 +238,146 @@
     </section>
 
     <!-- ============================================================
-         SECCIÓN 4 — ARQUITECTURA Y ROLES
+         SECCIÓN 4 — BENEFICIOS CLAVE
          ============================================================ -->
-    <section class="architecture" id="arquitectura" aria-labelledby="arch-heading">
-      <div class="container arch-inner">
+    <section class="benefits" id="beneficios" aria-labelledby="benefits-heading">
+      <div class="container">
 
-        <div class="arch-header">
-          <span class="section-label">Para el Equipo de Ingeniería</span>
-          <h2 class="section-title" id="arch-heading">Arquitectura Lógica en Capas Estrictas</h2>
+        <div class="benefits-header">
+          <span class="section-label">Ventajas</span>
+          <h2 class="section-title" id="benefits-heading">¿Qué gana tu banco de alimentos?</h2>
           <p class="section-subtitle">
-            Una arquitectura multicapa en JavaScript/TypeScript que garantiza aislamiento de
-            errores, mantenibilidad a largo plazo y resiliencia operativa total.
+            SEDA fue diseñado pensando en las necesidades reales de los equipos que operan
+            bancos de alimentos en la región.
           </p>
         </div>
 
-        <div class="arch-layout">
+        <div class="benefits-grid">
 
-          <!-- Stack de capas -->
-          <div>
-            <div class="arch-stack" role="list" aria-label="Capas de arquitectura">
+          <article class="benefit-card">
+            <div class="benefit-icon">📉</div>
+            <h3 class="benefit-title">Menos desperdicio</h3>
+            <p class="benefit-desc">
+              Las alertas de caducidad y la rotación inteligente de inventario aseguran
+              que se distribuya primero lo que vence antes.
+            </p>
+          </article>
 
-              <div class="arch-layer" role="listitem">
-                <span class="arch-layer-dot" style="background:#95c8a8;"></span>
-                <span class="arch-layer-label">Capa de Presentación (UI)</span>
-                <span class="arch-layer-desc">Frontend / PWA</span>
-              </div>
+          <article class="benefit-card">
+            <div class="benefit-icon">📊</div>
+            <h3 class="benefit-title">Decisiones con datos</h3>
+            <p class="benefit-desc">
+              El panel de control muestra métricas de impacto social, KPIs logísticos y
+              el estado de cada entrega para tomar mejores decisiones.
+            </p>
+          </article>
 
-              <div class="arch-layer" role="listitem">
-                <span class="arch-layer-dot" style="background:#4a9068;"></span>
-                <span class="arch-layer-label">Capa de Lógica de Negocio</span>
-                <span class="arch-layer-desc">Reglas / Validaciones</span>
-              </div>
+          <article class="benefit-card">
+            <div class="benefit-icon">📶</div>
+            <h3 class="benefit-title">Funciona sin internet</h3>
+            <p class="benefit-desc">
+              En zonas rurales sin señal, SEDA sigue operando. Los datos se sincronizan
+              automáticamente cuando se recupera la conexión.
+            </p>
+          </article>
 
-              <div class="arch-layer" role="listitem">
-                <span class="arch-layer-dot" style="background:#2d6a4f;"></span>
-                <span class="arch-layer-label">Capa de Acceso a Datos</span>
-                <span class="arch-layer-desc">ORM / Repositorios</span>
-              </div>
+          <article class="benefit-card">
+            <div class="benefit-icon">🔒</div>
+            <h3 class="benefit-title">Trazabilidad total</h3>
+            <p class="benefit-desc">
+              Cada donación tiene un registro inmutable desde su origen hasta la
+              confirmación digital de entrega en el destino final.
+            </p>
+          </article>
 
-              <div class="arch-layer" role="listitem">
-                <span class="arch-layer-dot" style="background:#6b7280;"></span>
-                <span class="arch-layer-label">Capa de Infraestructura</span>
-                <span class="arch-layer-desc">DB / APIs externas</span>
-              </div>
+          <article class="benefit-card">
+            <div class="benefit-icon">🚛</div>
+            <h3 class="benefit-title">Logística optimizada</h3>
+            <p class="benefit-desc">
+              Rutas más cortas, asignación correcta de transporte refrigerado o seco
+              y alertas automáticas si hay desvíos en la ruta.
+            </p>
+          </article>
 
-              <div class="arch-layer" role="listitem">
-                <span class="arch-layer-dot" style="background:#d1d5db;"></span>
-                <span class="arch-layer-label">Service Workers (Offline)</span>
-                <span class="arch-layer-desc">PWA — Zonas rurales</span>
-              </div>
+          <article class="benefit-card">
+            <div class="benefit-icon">⚡</div>
+            <h3 class="benefit-title">Fácil de usar</h3>
+            <p class="benefit-desc">
+              Interfaz intuitiva que no requiere capacitación extensa. Tu equipo puede
+              empezar a operar desde el primer día.
+            </p>
+          </article>
 
-            </div>
+        </div>
+      </div>
+    </section>
 
-            <div class="arch-tech" aria-label="Tecnologías utilizadas">
-              <span class="tech-pill">JavaScript ES2024</span>
-              <span class="tech-pill">TypeScript 5</span>
-              <span class="tech-pill">Service Workers</span>
-              <span class="tech-pill">IndexedDB</span>
-              <span class="tech-pill">PWA</span>
-              <span class="tech-pill">REST API</span>
-              <span class="tech-pill">QA Automatizado</span>
-            </div>
+    <!-- ============================================================
+         SECCIÓN 5 — IMPACTO
+         ============================================================ -->
+    <section class="impact" id="impacto" aria-labelledby="impact-heading">
+      <div class="container impact-inner">
+
+        <div class="impact-header">
+          <span class="section-label">Nuestro impacto</span>
+          <h2 class="section-title" id="impact-heading">Resultados que transforman comunidades</h2>
+          <p class="section-subtitle">
+            SEDA nació para resolver problemas reales en Cuitláhuac y el centro de Veracruz.
+            Estos son los resultados que buscamos alcanzar juntos.
+          </p>
+        </div>
+
+        <div class="impact-grid">
+
+          <div class="impact-card">
+            <div class="impact-value" data-counter="85" data-suffix="%">85%</div>
+            <div class="impact-label">Menos alimentos perdidos por caducidad</div>
           </div>
 
-          <!-- Roles del equipo -->
-          <div>
-            <p style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-green-300); margin-bottom: 18px;">
-              Equipo de Desarrollo
-            </p>
-            <div class="roles-block">
+          <div class="impact-card">
+            <div class="impact-value" data-counter="3" data-suffix="x">3x</div>
+            <div class="impact-label">Más entregas completadas a tiempo</div>
+          </div>
 
-              <div class="role-card">
-                <div class="role-avatar">💻</div>
-                <div>
-                  <div class="role-name">Frontend Developers</div>
-                  <div class="role-title">UI/UX · PWA · Componentes interactivos</div>
-                </div>
-              </div>
+          <div class="impact-card">
+            <div class="impact-value" data-counter="100" data-suffix="%">100%</div>
+            <div class="impact-label">Trazabilidad de donación a entrega</div>
+          </div>
 
-              <div class="role-card">
-                <div class="role-avatar">⚙️</div>
-                <div>
-                  <div class="role-name">Backend Principal</div>
-                  <div class="role-title">API REST · Lógica de negocio · Base de datos</div>
-                </div>
-              </div>
-
-              <div class="role-card">
-                <div class="role-avatar">🛡️</div>
-                <div>
-                  <div class="role-name">QA Lead &amp; Scrum Masters</div>
-                  <div class="role-title">Pruebas · Aseguramiento de calidad · Sprints</div>
-                </div>
-              </div>
-
-              <div class="role-card">
-                <div class="role-avatar">📊</div>
-                <div>
-                  <div class="role-name">Data / BI</div>
-                  <div class="role-title">Dashboards · KPIs · Análisis de impacto social</div>
-                </div>
-              </div>
-
-            </div>
+          <div class="impact-card">
+            <div class="impact-value" data-counter="0" data-suffix="">0</div>
+            <div class="impact-label">Registros en papel necesarios</div>
           </div>
 
         </div>
 
-        <!-- Banner PWA -->
-        <div class="pwa-banner" aria-label="Capacidad offline PWA">
-          <div class="pwa-icon">📶</div>
-          <div>
-            <p class="pwa-title">Operación resiliente sin conexión a Internet</p>
-            <p class="pwa-desc">
-              Mediante Service Workers y almacenamiento local con IndexedDB, SEDA mantiene
-              operaciones completas de registro, clasificación y despacho en zonas rurales
-              aisladas sin señal. La sincronización ocurre automáticamente al recuperar conectividad,
-              garantizando que ningún dato se pierda en campo.
-            </p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECCIÓN 6 — CTA FINAL
+         ============================================================ -->
+    <section class="cta-final" id="contacto" aria-labelledby="cta-heading">
+      <div class="container">
+        <div class="cta-box">
+          <span class="section-label">Empieza hoy</span>
+          <h2 class="section-title" id="cta-heading">¿Listo para transformar tu banco de alimentos?</h2>
+          <p>
+            Solicita una demostración gratuita y descubre cómo SEDA puede optimizar
+            tu operación, reducir el desperdicio y ampliar tu alcance comunitario.
+          </p>
+          <div class="cta-buttons">
+            <a href="#" class="btn btn-primary" id="cta-final-demo">Solicitar Demo Gratuita</a>
+            <a href="#" class="btn btn-secondary" id="cta-final-contact">Contactar al Equipo</a>
           </div>
         </div>
-
       </div>
     </section>
 
   </main>
 
   <!-- ============================================================
-       FOOTER INSTITUCIONAL
+       FOOTER
        ============================================================ -->
   <footer class="footer" id="footer" aria-label="Footer institucional">
     <div class="container">
@@ -417,43 +394,29 @@
             </span>
           </p>
           <p>
-            Plataforma digital desarrollada para optimizar la cadena logística de bancos
-            de alimentos en Cuitláhuac y el centro de Veracruz, reduciendo el desperdicio
-            y garantizando el acceso alimentario en comunidades vulnerables.
+            Plataforma digital para optimizar la cadena logística de bancos
+            de alimentos en Cuitláhuac y el centro de Veracruz.
           </p>
         </div>
 
-        <!-- Links -->
+        <!-- Navegación rápida -->
         <div>
-          <p class="footer-col-title">Módulos</p>
+          <p class="footer-col-title">Explora</p>
           <ul class="footer-links">
-            <li><a href="#modulo-entrada">Control de Entrada</a></li>
-            <li><a href="#modulo-clasificacion">Clasificación de Calidad</a></li>
-            <li><a href="#modulo-logistica">Logística y Despacho</a></li>
-            <li><a href="#modulo-telemetria">Telemetría y Entrega</a></li>
+            <li><a href="#problema">El Problema</a></li>
+            <li><a href="#como-funciona">¿Cómo Funciona?</a></li>
+            <li><a href="#beneficios">Beneficios</a></li>
+            <li><a href="#impacto">Impacto</a></li>
           </ul>
         </div>
 
-        <!-- Roles -->
+        <!-- Contacto -->
         <div>
-          <p class="footer-col-title">Roles Técnicos</p>
-          <ul class="footer-roles">
-            <li class="footer-role-item">
-              <span class="footer-role-dot"></span>
-              <span class="footer-role-name">Frontend Developers</span>
-            </li>
-            <li class="footer-role-item">
-              <span class="footer-role-dot"></span>
-              <span class="footer-role-name">Backend Principal</span>
-            </li>
-            <li class="footer-role-item">
-              <span class="footer-role-dot"></span>
-              <span class="footer-role-name">QA Lead &amp; Scrum Masters</span>
-            </li>
-            <li class="footer-role-item">
-              <span class="footer-role-dot"></span>
-              <span class="footer-role-name">Data / Business Intelligence</span>
-            </li>
+          <p class="footer-col-title">Contacto</p>
+          <ul class="footer-links">
+            <li><a href="#contacto">Solicitar Demo</a></li>
+            <li><a href="mailto:contacto@seda.mx">contacto@seda.mx</a></li>
+            <li><a href="#">Cuitláhuac, Veracruz</a></li>
           </ul>
         </div>
 
@@ -473,7 +436,6 @@
     </div>
   </footer>
 
-  <!-- Script principal al final del body -->
   <script src="main.js"></script>
 
 </body>
