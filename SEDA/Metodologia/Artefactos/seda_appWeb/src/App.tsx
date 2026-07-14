@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useStore } from './context/useStore';
 import LoginContainer from './views/Logins/LoginContainer';
 import Sidebar from './components/Sidebar';
@@ -9,7 +10,13 @@ import Packaging from './views/Packaging';
 import Logistics from './views/Logistics';
 
 export default function App() {
-  const { isAuthenticated, activeTab } = useStore();
+  const { isAuthenticated, activeTab, fetchInitialData } = useStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchInitialData();
+    }
+  }, [isAuthenticated, fetchInitialData]);
 
   if (!isAuthenticated) {
     return <LoginContainer />;

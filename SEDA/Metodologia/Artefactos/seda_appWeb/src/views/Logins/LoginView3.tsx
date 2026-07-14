@@ -6,10 +6,24 @@ export default function LoginView3() {
   const { login } = useStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(email || 'demo@seda.org');
+    setErrorMsg(null);
+    setLoading(true);
+
+    try {
+      const res = await login(email, password);
+      if (!res.success) {
+        setErrorMsg(res.message || 'Credenciales incorrectas');
+      }
+    } catch (err) {
+      setErrorMsg('Error al conectar con el servidor.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -20,9 +34,16 @@ export default function LoginView3() {
           <h2 className="text-[40px] font-black text-neutral-800 tracking-tight leading-tight select-none">
             Inicio de Sesión
           </h2>
-          <p className="text-slate-500 font-bold text-sm tracking-wide mb-8">
+          <p className="text-slate-500 font-bold text-sm tracking-wide mb-6">
             Bienvenido de nuevo
           </p>
+
+          {errorMsg && (
+            <div className="mb-6 p-3 bg-rose-50 border border-rose-100 text-rose-800 text-xs font-semibold rounded-2xl flex items-center space-x-2 shadow-sm animate-fade-in">
+              <span className="w-2 h-2 bg-rose-500 rounded-full shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="w-full space-y-6">
             {/* Email Input */}
@@ -35,7 +56,9 @@ export default function LoginView3() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
-                className="w-full h-12 px-5 rounded-full border border-slate-200 focus:outline-none focus:border-peach-accent text-sm font-semibold text-slate-700 bg-transparent placeholder:text-slate-300"
+                required
+                disabled={loading}
+                className="w-full h-12 px-5 rounded-full border border-slate-200 focus:outline-none focus:border-[#9A6B4C] text-sm font-semibold text-slate-700 bg-transparent placeholder:text-slate-300 disabled:opacity-50"
               />
             </div>
 
@@ -48,8 +71,10 @@ export default function LoginView3() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="tu@email.com"
-                className="w-full h-12 px-5 rounded-full border border-slate-200 focus:outline-none focus:border-peach-accent text-sm font-semibold text-slate-700 bg-transparent placeholder:text-slate-300"
+                placeholder="••••••••"
+                required
+                disabled={loading}
+                className="w-full h-12 px-5 rounded-full border border-slate-200 focus:outline-none focus:border-[#9A6B4C] text-sm font-semibold text-slate-700 bg-transparent placeholder:text-slate-300 disabled:opacity-50"
               />
             </div>
 
@@ -60,7 +85,8 @@ export default function LoginView3() {
                   type="checkbox"
                   id="not-a-robot-3"
                   required
-                  className="w-6 h-6 border-2 border-slate-300 rounded text-amber-800 focus:ring-0 cursor-pointer"
+                  disabled={loading}
+                  className="w-6 h-6 border-2 border-slate-300 rounded text-amber-800 focus:ring-0 cursor-pointer disabled:opacity-50"
                 />
                 <label htmlFor="not-a-robot-3" className="text-xs font-bold text-slate-600 select-none cursor-pointer">
                   I'm not a robot
@@ -83,10 +109,20 @@ export default function LoginView3() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full h-12 bg-[#9A6B4C] hover:bg-[#855A3E] text-white font-bold rounded-full transition-all duration-200 flex items-center justify-center space-x-2 shadow-md shadow-[#9A6B4C]/25 text-sm"
+              disabled={loading}
+              className="w-full h-12 bg-[#9A6B4C] hover:bg-[#855A3E] text-white font-bold rounded-full transition-all duration-200 flex items-center justify-center space-x-2 shadow-md shadow-[#9A6B4C]/25 text-sm disabled:opacity-75 cursor-pointer disabled:cursor-not-allowed"
             >
-              <span>Ingresar</span>
-              <span className="text-white/80 font-normal">&gt;</span>
+              {loading ? (
+                <span className="flex items-center space-x-2">
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Iniciando sesión...</span>
+                </span>
+              ) : (
+                <>
+                  <span>Ingresar</span>
+                  <span className="text-white/80 font-normal">&gt;</span>
+                </>
+              )}
             </button>
           </form>
 

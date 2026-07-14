@@ -50,6 +50,7 @@ app.use('/api/incidencias', authMiddleware, require('./routes/incidencias.routes
 app.use('/api/historial-rutas', authMiddleware, require('./routes/historial.routes'));
 app.use('/api/alertas', authMiddleware, require('./routes/alertas.routes'));
 app.use('/api/consolidacion', authMiddleware, require('./routes/consolidacion.routes'));
+app.use('/api/routing', authMiddleware, require('./routes/routing.routes'));
 
 app.get('/', (req, res) => {
   res.json({
@@ -67,7 +68,8 @@ app.get('/', (req, res) => {
       incidencias: '/api/incidencias',
       historial_rutas: '/api/historial-rutas',
       alertas: '/api/alertas',
-      consolidacion: '/api/consolidacion'
+      consolidacion: '/api/consolidacion',
+      routing: '/api/routing'
     }
   });
 });
@@ -105,5 +107,6 @@ app.listen(PORT, () => {
   console.log(`   /api/incidencias`);
   console.log(`   /api/historial-rutas`);
   console.log(`   /api/alertas`);
-  console.log(`   /api/consolidacion\n`);
+  console.log(`   /api/consolidacion`);
+  console.log(`   /api/routing\n`);
 });

@@ -1,5 +1,5 @@
 const db = require('../config/database');
-
+const logisticsService = require('../services/logistics.service');
 exports.getAll = (req, res) => {
   try {
     const { status } = req.query;
@@ -26,7 +26,7 @@ exports.getById = (req, res) => {
   }
 };
 
-exports.create = (req, res) => {
+exports.create = async (req, res) => { // Cambiado a async
   try {
     const { title, unit } = req.body;
     if (!title || !unit) return res.status(400).json({ success: false, error: 'Datos incompletos', message: 'Se requiere title y unit.' });
@@ -39,6 +39,18 @@ exports.create = (req, res) => {
     `).run(codigo, title, unit);
 
     const newIncidencia = db.prepare('SELECT * FROM incidencias WHERE id = ?').get(result.lastInsertRowid);
+
+    // --- INTEGRACIÓN TWILIO ---
+    try {
+      await logisticsService.sendSMS(
+        '+521234567890', // Número del supervisor o configurado en .env
+        `⚠️ Alerta SEDA: Nueva incidencia creada [${codigo}]. Unidad: ${unit}. Motivo: ${title}.`
+      );
+    } catch (smsError) {
+      console.error('Fallo al enviar SMS, pero la incidencia se guardó:', smsError);
+    }
+    // --------------------------
+
     res.status(201).json({ success: true, data: newIncidencia, message: 'Incidencia registrada correctamente.' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Error interno del servidor', message: error.message });
