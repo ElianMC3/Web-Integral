@@ -1,7 +1,14 @@
 import { create } from 'zustand';
+import * as api from '../services/api';
+import type { DonanteAPI, UserAPI } from '../services/api';
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Interfaces (preservadas — solo se agrega apiId)
+// ──────────────────────────────────────────────────────────────────────────────
 
 export interface Donation {
   id: string;
+  apiId?: number;
   donorName: string;
   donorId: string;
   category: string;
@@ -20,6 +27,7 @@ export interface Donation {
 
 export interface KanbanTask {
   id: string;
+  apiId?: number;
   title: string;
   donor: string;
   weight: string;
@@ -33,6 +41,7 @@ export interface KanbanTask {
 
 export interface LogisticsUnit {
   id: string;
+  apiId?: number;
   driver: string;
   type: 'Refrigerado' | 'Seco';
   capacity: string;
@@ -45,6 +54,7 @@ export interface LogisticsUnit {
 
 export interface LogisticsIncidence {
   id: string;
+  apiId?: number;
   title: string;
   unit: string;
   status: 'active' | 'reviewed';
@@ -52,6 +62,7 @@ export interface LogisticsIncidence {
 
 export interface HistoricalRoute {
   id: string;
+  apiId?: number;
   driver: string;
   unit: string;
   actionText: string;
@@ -66,6 +77,7 @@ export interface HistoricalRoute {
 
 export interface OperationalAlert {
   id: string;
+  apiId?: number;
   type: 'caducidad' | 'incidencia';
   title: string;
   level: 'URGENTE' | 'RETRASO';
@@ -75,10 +87,22 @@ export interface OperationalAlert {
   contactName?: string;
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// State interface
+// ──────────────────────────────────────────────────────────────────────────────
+
 interface AppState {
+  // Auth
   isAuthenticated: boolean;
-  currentUser: { name: string; office: string; avatar?: string } | null;
-  activeTab: 'dashboard' | 'reception' | 'packaging' | 'logistics';
+  currentUser: { name: string; office: string; avatar?: string; role?: string } | null;
+  token: string | null;
+
+  // UI
+  activeTab: 'dashboard' | 'reception' | 'packaging' | 'logistics' | 'users';
+  isLoading: boolean;
+  error: string | null;
+
+  // Data
   donations: Donation[];
   kanbanTasks: KanbanTask[];
   logisticsUnits: LogisticsUnit[];
@@ -88,309 +112,400 @@ interface AppState {
   consolidationDestination: string;
   consolidationBarcode: string;
   consolidatedItems: { id: string; category: string; weight: number }[];
-  
-  // Actions
-  login: (email: string) => void;
+
+  // Donantes
+  donantes: DonanteAPI[];
+  selectedDonor: DonanteAPI | null;
+
+  // Usuarios
+  usuarios: UserAPI[];
+  usuariosPagination: { total: number; page: number; limit: number; pages: number } | null;
+
+  // Auth actions
+  initAuth: () => void;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  setTab: (tab: 'dashboard' | 'reception' | 'packaging' | 'logistics') => void;
-  addDonation: (donation: Omit<Donation, 'id' | 'timestamp'>) => void;
-  moveKanbanTask: (id: string, column: 'PENDIENTE' | 'EN_PROCESO' | 'CONTROL_CALIDAD') => void;
-  resolveOperationalAlert: (id: string, action: string) => void;
-  resolveLogisticsIncidence: (id: string) => void;
+  clearError: () => void;
+
+  // Navigation
+  setTab: (tab: 'dashboard' | 'reception' | 'packaging' | 'logistics' | 'users') => void;
+
+  // Fetch actions
+  fetchAllData: () => Promise<void>;
+  fetchDonaciones: () => Promise<void>;
+  fetchDonantes: (search?: string) => Promise<void>;
+  fetchLotes: () => Promise<void>;
+  fetchUnidades: () => Promise<void>;
+  fetchIncidencias: () => Promise<void>;
+  fetchHistorialRutas: () => Promise<void>;
+  fetchAlertas: () => Promise<void>;
+  fetchConsolidacion: () => Promise<void>;
+
+  // Mutation actions
+  addDonation: (donation: Omit<Donation, 'id' | 'timestamp' | 'apiId'>) => Promise<void>;
+  addDonante: (data: {
+    nombre: string; empresa?: string; rfc?: string; telefono?: string;
+    email?: string; direccion?: string; categoria?: string; tipo?: string; notas?: string;
+  }) => Promise<DonanteAPI>;
+  setSelectedDonor: (donor: DonanteAPI | null) => void;
+  moveKanbanTask: (id: string, column: 'PENDIENTE' | 'EN_PROCESO' | 'CONTROL_CALIDAD') => Promise<void>;
+  resolveOperationalAlert: (id: string, action: string) => Promise<void>;
+  resolveLogisticsIncidence: (id: string) => Promise<void>;
+  addConsolidationItem: (item: { id: string; category: string; weight: number }) => Promise<void>;
+  clearConsolidation: () => Promise<void>;
+
+  // Usuario actions
+  fetchUsuarios: (params?: { page?: number; limit?: number; search?: string; role?: string }) => Promise<void>;
+  createUsuario: (data: Record<string, unknown>) => Promise<void>;
+  deleteUsuario: (id: number) => Promise<void>;
+
+  // Sync actions
+
   setConsolidationDestination: (dest: string) => void;
   setConsolidationBarcode: (barcode: string) => void;
-  addConsolidationItem: (item: { id: string; category: string; weight: number }) => void;
-  clearConsolidation: () => void;
 }
 
-export const useStore = create<AppState>((set) => ({
+// ──────────────────────────────────────────────────────────────────────────────
+// Store
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const useStore = create<AppState>((set, get) => ({
+  // ── Initial state ──
   isAuthenticated: false,
   currentUser: null,
+  token: null,
   activeTab: 'dashboard',
+  isLoading: false,
+  error: null,
 
-  donations: [
-    {
-      id: 'DON-8492',
-      donorName: 'Supermercados La Granja',
-      donorId: 'DON-8492',
-      category: 'Abarrotes',
-      weight: 250,
-      batchNumber: 'L-48290',
-      expirationDate: '2026-08-20',
-      temperature: 20,
-      vehicleStatus: 'Óptimo',
-      notes: 'Llegada a tiempo. Cajas en perfecto estado.',
-      status: 'Aprobado',
-      timestamp: '10:45 AM'
-    },
-    {
-      id: 'DON-8493',
-      donorName: 'Productora Agrícola Sur',
-      donorId: 'DON-8493',
-      category: 'Perecederos',
-      weight: 120,
-      batchNumber: 'L-48291',
-      expirationDate: '2026-06-25',
-      temperature: 8,
-      vehicleStatus: 'Óptimo',
-      notes: 'Temperatura de llegada al límite de control.',
-      status: 'Retenido',
-      issueDetails: 'Temperatura de llegada límite (8°C). Requiere inspección de calidad.',
-      timestamp: '11:15 AM'
-    },
-    {
-      id: 'DON-8494',
-      donorName: 'Donante Particular',
-      donorId: 'DON-8494',
-      category: 'Mixto',
-      weight: 45,
-      batchNumber: 'L-48292',
-      expirationDate: '2026-07-10',
-      temperature: 18,
-      vehicleStatus: 'Regular',
-      notes: 'Donación mixta menor de alimentos secos y algunas frutas.',
-      status: 'Pendiente Clasificación',
-      timestamp: '11:50 AM'
-    }
-  ],
-
-  kanbanTasks: [
-    {
-      id: 'LOTE-9921',
-      title: 'Lácteos Mixtos',
-      donor: 'Supermercado A',
-      weight: '150kg',
-      dueDate: 'Hoy 14:00',
-      status: 'Frío',
-      column: 'PENDIENTE'
-    },
-    {
-      id: 'LOTE-9922',
-      title: 'Abarrotes Generales',
-      donor: 'Mayorista Sur',
-      weight: '500kg',
-      dueDate: 'Mañana',
-      status: 'Sin asignar',
-      column: 'PENDIENTE'
-    },
-    {
-      id: 'LOTE-9915',
-      title: 'Verduras Mixtas',
-      donor: 'Productor Local',
-      weight: '300kg',
-      dueDate: 'Hoy 18:00',
-      status: 'Asignado',
-      column: 'EN_PROCESO',
-      progress: 60,
-      location: 'Mesa 4',
-      assignedTo: 'Carlos D.'
-    },
-    {
-      id: 'LOTE-9908',
-      title: 'Cajas Despensa Familiar',
-      donor: 'Despensa Sur',
-      weight: '50 Cajas',
-      dueDate: 'Esperando Inspector',
-      status: 'Esperando Inspector',
-      column: 'CONTROL_CALIDAD'
-    }
-  ],
-
-  logisticsUnits: [
-    {
-      id: 'TR-01',
-      driver: 'Miguel Ángel',
-      type: 'Refrigerado',
-      capacity: '12T',
-      loadPercentage: 85,
-      temp: '-18°C',
-      eta: '14:30'
-    },
-    {
-      id: 'CV-04',
-      driver: 'Roberto P.',
-      type: 'Seco',
-      capacity: '8T',
-      loadPercentage: 40,
-      statusBadge: 'CARGA EN PROCESO',
-      location: 'Andén 2'
-    }
-  ],
-
-  logisticsIncidences: [
-    { id: 'INC-01', title: 'Desvío de Ruta (TR-02)', unit: 'TR-02', status: 'active' },
-    { id: 'INC-02', title: 'Retraso Tráfico (CV-01)', unit: 'CV-01', status: 'active' }
-  ],
-
-  historicalRoutes: [
-    {
-      id: 'HIST-01',
-      driver: 'Miguel Ángel (TR-01)',
-      unit: 'TR-01',
-      actionText: 'completó la entrega del',
-      lote: 'LOTE-9918',
-      details: 'Destino: Zona Sur (Despensas comunitarias, Sector 2) • Tipo: Perecederos',
-      time: '14:30 PM',
-      date: '11/05/2026',
-      statusBadge: 'Entrega Exitosa',
-      statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-      extraBadge: 'Temp Final: -17.8°C'
-    },
-    {
-      id: 'HIST-02',
-      driver: 'Sistema',
-      unit: 'SYSTEM',
-      actionText: 'reasignó la ruta para',
-      lote: 'LOTE-9919',
-      details: 'Motivo: Retraso por tráfico reportado en Ruta Principal Norte.',
-      time: '10:15 AM',
-      date: '11/05/2026',
-      statusBadge: 'Desvío Autorizado',
-      statusColor: 'bg-amber-100 text-amber-800 border-amber-200'
-    },
-    {
-      id: 'HIST-03',
-      driver: 'Roberto P. (CV-04)',
-      unit: 'CV-04',
-      actionText: 'completó la entrega del',
-      lote: 'LOTE-9915',
-      details: 'Destino: Comedor Comunitario Esperanza • Tipo: Secos',
-      time: '16:45 PM',
-      date: '10/05/2026',
-      statusBadge: 'Entrega Exitosa',
-      statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-200'
-    }
-  ],
-
-  operationalAlerts: [
-    {
-      id: 'ALERT-01',
-      type: 'caducidad',
-      title: 'Caducidad Próxima (Lácteos)',
-      level: 'URGENTE',
-      desc: 'DON L-4592 (150kg) caduca en 48h.',
-      details: 'Ubicación: Cámara Frío 2, Pasillo B.',
-      resolved: false
-    },
-    {
-      id: 'ALERT-02',
-      type: 'incidencia',
-      title: 'Incidencia en Ruta Norte-04',
-      level: 'RETRASO',
-      desc: 'Tráfico pesado reportado. Retraso estimado de 45 min en recolección de Donante D-12.',
-      details: 'Acción sugerida: Re-rutar vehículo.',
-      resolved: false,
-      contactName: 'Roberto P. (CV-04)'
-    }
-  ],
-
+  donations: [],
+  kanbanTasks: [],
+  logisticsUnits: [],
+  logisticsIncidences: [],
+  historicalRoutes: [],
+  operationalAlerts: [],
   consolidationDestination: 'Despensa Centro',
   consolidationBarcode: '',
-  consolidatedItems: [
-    { id: 'LOTE-9901', category: 'No Perecederos', weight: 50 },
-    { id: 'LOTE-9905', category: 'Perecederos', weight: 50 }
-  ],
+  consolidatedItems: [],
 
-  // Action implementations
-  login: (email: string) => set({
-    isAuthenticated: true,
-    currentUser: {
-      name: email && email.includes('@') ? email.split('@')[0] : 'Carlos Dispatcher',
-      office: 'Despensa Norte',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256'
+  donantes: [],
+  selectedDonor: null,
+
+  usuarios: [],
+  usuariosPagination: null,
+
+  // ── Auth ──────────────────────────────────────────────────────────────────
+
+  initAuth: () => {
+    const token = localStorage.getItem('seda_token');
+    const userStr = localStorage.getItem('seda_user');
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        set({ isAuthenticated: true, token, currentUser: user });
+        get().fetchAllData();
+      } catch {
+        localStorage.removeItem('seda_token');
+        localStorage.removeItem('seda_user');
+      }
     }
-  }),
+  },
 
-  logout: () => set({ isAuthenticated: false, currentUser: null, activeTab: 'dashboard' }),
+  login: async (email: string, password: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await api.login(email, password);
+      const user = {
+        name: res.usuario.nombre,
+        office: res.usuario.office,
+        role: res.usuario.role,
+      };
+      localStorage.setItem('seda_token', res.token);
+      localStorage.setItem('seda_user', JSON.stringify(user));
+      set({
+        isAuthenticated: true,
+        token: res.token,
+        currentUser: user,
+        isLoading: false,
+        error: null,
+      });
+      await get().fetchAllData();
+    } catch (err) {
+      set({
+        isLoading: false,
+        error: (err as Error).message || 'Error al iniciar sesión',
+      });
+      throw err;
+    }
+  },
+
+  logout: () => {
+    localStorage.removeItem('seda_token');
+    localStorage.removeItem('seda_user');
+    set({
+      isAuthenticated: false,
+      currentUser: null,
+      token: null,
+      activeTab: 'dashboard',
+      donations: [],
+      kanbanTasks: [],
+      logisticsUnits: [],
+      logisticsIncidences: [],
+      historicalRoutes: [],
+      operationalAlerts: [],
+      consolidatedItems: [],
+      donantes: [],
+      selectedDonor: null,
+      usuarios: [],
+      usuariosPagination: null,
+    });
+  },
+
+  clearError: () => set({ error: null }),
+
+  // ── Navigation ──
 
   setTab: (tab) => set({ activeTab: tab }),
 
-  addDonation: (donation) => set((state) => {
-    const newId = `DON-${Math.floor(1000 + Math.random() * 9000)}`;
-    const newDonationItem: Donation = {
-      ...donation,
-      id: newId,
-      timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
-    };
+  // ── Fetch actions ────────────────────────────────────────────────────────
 
-    // Add corresponding task to Kanban
-    const newKanbanTask: KanbanTask = {
-      id: `LOTE-${Math.floor(9000 + Math.random() * 1000)}`,
-      title: `${donation.category} Recibidos`,
-      donor: donation.donorName,
-      weight: `${donation.weight}kg`,
-      dueDate: donation.expirationDate ? `Vence: ${donation.expirationDate}` : 'Sin fecha',
-      status: donation.category.toLowerCase().includes('perecedero') || donation.category.toLowerCase().includes('lácteo') ? 'Frío' : 'Sin asignar',
-      column: 'PENDIENTE'
-    };
-
-    // Update operational dashboard metrics as well
-    return {
-      donations: [newDonationItem, ...state.donations],
-      kanbanTasks: [newKanbanTask, ...state.kanbanTasks]
-    };
-  }),
-
-  moveKanbanTask: (id, column) => set((state) => ({
-    kanbanTasks: state.kanbanTasks.map((task) => {
-      if (task.id === id) {
-        let update: Partial<KanbanTask> = { column };
-        if (column === 'EN_PROCESO') {
-          update.progress = 10;
-          update.location = 'Mesa ' + Math.floor(1 + Math.random() * 5);
-          update.assignedTo = 'Carlos D.';
-        } else if (column === 'CONTROL_CALIDAD') {
-          update.status = 'Esperando Inspector';
-        }
-        return { ...task, ...update };
-      }
-      return task;
-    })
-  })),
-
-  resolveOperationalAlert: (id, action) => set((state) => {
-    const updatedAlerts = state.operationalAlerts.map(alert => 
-      alert.id === id ? { ...alert, resolved: true } : alert
-    );
-    
-    // Add to history
-    const matchedAlert = state.operationalAlerts.find(a => a.id === id);
-    let newHistory: HistoricalRoute | null = null;
-    
-    if (matchedAlert) {
-      newHistory = {
-        id: `HIST-${Math.floor(10000 + Math.random() * 90000)}`,
-        driver: 'Sistema / Carlos D.',
-        unit: 'ALERT_RESOLUTION',
-        actionText: 'resolvió alerta de',
-        lote: matchedAlert.title,
-        details: `Acción: ${action} • ${matchedAlert.desc}`,
-        time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-        date: '11/05/2026',
-        statusBadge: 'Acción Ejecutada',
-        statusColor: 'bg-blue-100 text-blue-800 border-blue-200'
-      };
+  fetchAllData: async () => {
+    set({ isLoading: true });
+    try {
+      const [
+        donations,
+        kanbanTasks,
+        logisticsUnits,
+        logisticsIncidences,
+        historicalRoutes,
+        operationalAlerts,
+        consolidacion,
+      ] = await Promise.all([
+        api.getDonaciones(),
+        api.getLotes(),
+        api.getUnidades(),
+        api.getIncidencias(),
+        api.getHistorialRutas(),
+        api.getAlertas(),
+        api.getConsolidacion(),
+      ]);
+      set({
+        donations,
+        kanbanTasks,
+        logisticsUnits,
+        logisticsIncidences,
+        historicalRoutes,
+        operationalAlerts,
+        consolidatedItems: consolidacion.items,
+        consolidationDestination: consolidacion.destination,
+        isLoading: false,
+      });
+    } catch (err) {
+      set({ isLoading: false, error: (err as Error).message });
     }
+  },
 
-    return {
-      operationalAlerts: updatedAlerts,
-      historicalRoutes: newHistory ? [newHistory, ...state.historicalRoutes] : state.historicalRoutes
-    };
-  }),
+  fetchDonaciones: async () => {
+    try {
+      const donations = await api.getDonaciones();
+      set({ donations });
+    } catch (err) {
+      console.error('Error fetching donaciones:', err);
+    }
+  },
 
-  resolveLogisticsIncidence: (id) => set((state) => ({
-    logisticsIncidences: state.logisticsIncidences.map((inc) => 
-      inc.id === id ? { ...inc, status: 'reviewed' } : inc
-    )
-  })),
+  fetchDonantes: async (search?: string) => {
+    try {
+      const donantes = await api.getDonantes(search);
+      set({ donantes });
+    } catch (err) {
+      console.error('Error fetching donantes:', err);
+    }
+  },
+
+  fetchLotes: async () => {
+    try {
+      const kanbanTasks = await api.getLotes();
+      set({ kanbanTasks });
+    } catch (err) {
+      console.error('Error fetching lotes:', err);
+    }
+  },
+
+  fetchUnidades: async () => {
+    try {
+      const logisticsUnits = await api.getUnidades();
+      set({ logisticsUnits });
+    } catch (err) {
+      console.error('Error fetching unidades:', err);
+    }
+  },
+
+  fetchIncidencias: async () => {
+    try {
+      const logisticsIncidences = await api.getIncidencias();
+      set({ logisticsIncidences });
+    } catch (err) {
+      console.error('Error fetching incidencias:', err);
+    }
+  },
+
+  fetchHistorialRutas: async () => {
+    try {
+      const historicalRoutes = await api.getHistorialRutas();
+      set({ historicalRoutes });
+    } catch (err) {
+      console.error('Error fetching historial:', err);
+    }
+  },
+
+  fetchAlertas: async () => {
+    try {
+      const operationalAlerts = await api.getAlertas();
+      set({ operationalAlerts });
+    } catch (err) {
+      console.error('Error fetching alertas:', err);
+    }
+  },
+
+  fetchConsolidacion: async () => {
+    try {
+      const consolidacion = await api.getConsolidacion();
+      set({
+        consolidatedItems: consolidacion.items,
+        consolidationDestination: consolidacion.destination,
+      });
+    } catch (err) {
+      console.error('Error fetching consolidacion:', err);
+    }
+  },
+
+  // ── Mutation actions ─────────────────────────────────────────────────────
+
+  addDonation: async (donation) => {
+    try {
+      await api.createDonacion({
+        donor_name: donation.donorName,
+        category: donation.category,
+        weight: donation.weight,
+        batch_number: donation.batchNumber || undefined,
+        expiration_date: donation.expirationDate || undefined,
+        temperature: donation.temperature,
+        vehicle_status: donation.vehicleStatus,
+        notes: donation.notes || undefined,
+        evidence_name: donation.evidenceName,
+        status: donation.status,
+        issue_details: donation.issueDetails,
+      });
+      // Refetch donations + lotes (API auto-creates a lote on donation creation)
+      await Promise.all([get().fetchDonaciones(), get().fetchLotes()]);
+    } catch (err) {
+      set({ error: (err as Error).message });
+      throw err;
+    }
+  },
+
+  addDonante: async (data) => {
+    try {
+      const newDonante = await api.createDonante(data);
+      // Auto-select the newly created donor and refresh list
+      set({ selectedDonor: newDonante });
+      await get().fetchDonantes();
+      return newDonante;
+    } catch (err) {
+      set({ error: (err as Error).message });
+      throw err;
+    }
+  },
+
+  setSelectedDonor: (donor) => set({ selectedDonor: donor }),
+
+  moveKanbanTask: async (id, column) => {
+    const task = get().kanbanTasks.find(t => t.id === id);
+    if (!task?.apiId) return;
+    try {
+      await api.moverLote(task.apiId, column);
+      await get().fetchLotes();
+    } catch (err) {
+      set({ error: (err as Error).message });
+    }
+  },
+
+  resolveOperationalAlert: async (id, action) => {
+    const alert = get().operationalAlerts.find(a => a.id === id);
+    if (!alert?.apiId) return;
+    try {
+      await api.resolverAlerta(alert.apiId, action);
+      await Promise.all([get().fetchAlertas(), get().fetchHistorialRutas()]);
+    } catch (err) {
+      set({ error: (err as Error).message });
+    }
+  },
+
+  resolveLogisticsIncidence: async (id) => {
+    const inc = get().logisticsIncidences.find(i => i.id === id);
+    if (!inc?.apiId) return;
+    try {
+      await api.resolverIncidencia(inc.apiId);
+      await get().fetchIncidencias();
+    } catch (err) {
+      set({ error: (err as Error).message });
+    }
+  },
+
+  addConsolidationItem: async (item) => {
+    try {
+      await api.addConsolidacionItem({
+        codigo: item.id,
+        category: item.category,
+        weight: item.weight,
+        destination: get().consolidationDestination,
+      });
+      await get().fetchConsolidacion();
+    } catch (err) {
+      set({ error: (err as Error).message });
+    }
+  },
+
+  clearConsolidation: async () => {
+    try {
+      await api.clearConsolidacion();
+      set({ consolidatedItems: [] });
+    } catch (err) {
+      set({ error: (err as Error).message });
+    }
+  },
+
+  // ── Sync actions ──
 
   setConsolidationDestination: (dest) => set({ consolidationDestination: dest }),
-  
   setConsolidationBarcode: (barcode) => set({ consolidationBarcode: barcode }),
 
-  addConsolidationItem: (item) => set((state) => ({
-    consolidatedItems: [...state.consolidatedItems, item]
-  })),
+  fetchUsuarios: async (params = {}) => {
+    try {
+      const res = await api.getUsuarios({ page: 1, limit: 10, ...params });
+      set({ usuarios: res.data, usuariosPagination: res.pagination });
+    } catch (err) {
+      set({ error: (err as Error).message });
+    }
+  },
 
-  clearConsolidation: () => set({ consolidatedItems: [] })
+  createUsuario: async (data) => {
+    try {
+      await api.createUsuario(data);
+      await get().fetchUsuarios();
+    } catch (err) {
+      set({ error: (err as Error).message });
+      throw err;
+    }
+  },
+
+  deleteUsuario: async (id) => {
+    try {
+      await api.deleteUsuario(id);
+      await get().fetchUsuarios();
+    } catch (err) {
+      set({ error: (err as Error).message });
+    }
+  },
 }));

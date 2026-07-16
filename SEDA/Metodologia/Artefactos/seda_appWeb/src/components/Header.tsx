@@ -14,6 +14,8 @@ export default function Header() {
         return 'Centro de Empacado y Clasificación';
       case 'logistics':
         return 'Gestión de Logística y Rutas';
+      case 'users':
+        return 'Gestión de Usuarios';
       default:
         return 'SEDA';
     }

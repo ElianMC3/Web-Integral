@@ -1,5 +1,5 @@
 import { useStore } from '../context/useStore';
-import { LayoutDashboard, Import, PackageOpen, Truck, LogOut } from 'lucide-react';
+import { LayoutDashboard, Import, PackageOpen, Truck, Users, LogOut } from 'lucide-react';
 
 export default function Sidebar() {
   const { activeTab, setTab, currentUser, logout } = useStore();
@@ -25,6 +25,11 @@ export default function Sidebar() {
       name: 'Gestión de Logística y Rutas',
       icon: Truck,
     },
+    {
+      id: 'users',
+      name: 'Gestión de Usuarios',
+      icon: Users,
+    },
   ] as const;
 
   return (
@@ -32,10 +37,10 @@ export default function Sidebar() {
       {/* Branding */}
       <div className="p-5 border-b border-slate-100 flex items-center space-x-3">
         <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-md shadow-slate-950/20">
-          <span className="font-extrabold text-sm tracking-wider">FB</span>
+          <span className="font-extrabold text-sm tracking-wider">SD</span>
         </div>
         <div>
-          <h1 className="font-extrabold text-slate-800 text-[15px] tracking-wide leading-none">La comidita</h1>
+          <h1 className="font-extrabold text-slate-800 text-[15px] tracking-wide leading-none">SEDA</h1>
           <span className="text-[10px] text-slate-400 font-medium tracking-wider uppercase">Banco de Alimentos</span>
         </div>
       </div>
@@ -53,19 +58,17 @@ export default function Sidebar() {
               <button
                 key={item.id}
                 onClick={() => setTab(item.id)}
-                className={`w-full flex items-center space-x-3 px-3 py-3 rounded-xl text-left text-xs font-semibold tracking-wide transition-all duration-200 relative group ${
-                  isActive
-                    ? 'text-blue-600 bg-blue-50/70 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50/50'
-                }`}
+                className={`w-full flex items-center space-x-3 px-3 py-3 rounded-xl text-left text-xs font-semibold tracking-wide transition-all duration-200 relative group ${isActive
+                  ? 'text-blue-600 bg-blue-50/70 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50/50'
+                  }`}
               >
                 {isActive && (
                   <span className="absolute left-0 top-1/4 bottom-1/4 w-1.5 bg-blue-600 rounded-r-lg" />
                 )}
                 <Icon
-                  className={`w-5 h-5 transition-transform duration-200 group-hover:scale-105 ${
-                    isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'
-                  }`}
+                  className={`w-5 h-5 transition-transform duration-200 group-hover:scale-105 ${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'
+                    }`}
                 />
                 <span className="truncate">{item.name}</span>
               </button>

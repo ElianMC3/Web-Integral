@@ -1,5 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '../context/useStore';
+import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix Leaflet's default marker icons broken by Vite module bundling
+delete (L.Icon.Default.prototype as { _getIconUrl?: unknown })._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
 import { 
   Truck, 
   MapPin, 
@@ -11,6 +22,16 @@ import {
   Download
 } from 'lucide-react';
 
+function MapController({ positions }: { positions: [number, number][] }) {
+  const map = useMap();
+  useEffect(() => {
+    if (positions && positions.length > 0) {
+      map.fitBounds(positions, { padding: [50, 50], animate: true });
+    }
+  }, [map, positions]);
+  return null;
+}
+
 export default function Logistics() {
   const { 
     logisticsUnits, 
@@ -20,11 +41,36 @@ export default function Logistics() {
   } = useStore();
 
   const [historyQuery, setHistoryQuery] = useState('');
+  const [resolving, setResolving] = useState<Record<string, boolean>>({});
+  const [resolvedMsg, setResolvedMsg] = useState('');
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
+
+  const getRouteForId = (id: string): [number, number][] => {
+    const routes = [
+      [[19.1738, -96.1342], [19.1600, -96.1200], [19.1022, -96.1089]], // Boca del Rio
+      [[19.1738, -96.1342], [19.2500, -96.2500], [19.3672, -96.3725]], // Cardel
+      [[19.1738, -96.1342], [19.0000, -96.5000], [18.8833, -96.9333]]  // Cordoba
+    ];
+    let sum = 0;
+    for (let i = 0; i < id.length; i++) {
+      sum += id.charCodeAt(i);
+    }
+    return routes[sum % routes.length] as [number, number][];
+  };
 
   // Handle reviewing/resolving active incidents
-  const handleReviewIncident = (id: string, name: string) => {
-    resolveLogisticsIncidence(id);
-    alert(`Incidencia "${name}" revisada y autorizada.`);
+  const handleReviewIncident = async (id: string, name: string) => {
+    setResolving(prev => ({ ...prev, [id]: true }));
+    try {
+      await resolveLogisticsIncidence(id);
+      setResolvedMsg(`Incidencia "${name}" revisada y resuelta correctamente.`);
+      setTimeout(() => setResolvedMsg(''), 4000);
+    } catch {
+      setResolvedMsg(`Error al resolver incidencia "${name}".`);
+      setTimeout(() => setResolvedMsg(''), 4000);
+    } finally {
+      setResolving(prev => ({ ...prev, [id]: false }));
+    }
   };
 
   // Filter history log
@@ -48,6 +94,33 @@ export default function Logistics() {
         {/* Left Column: Active Units & Incidents */}
         <div className="space-y-8 lg:col-span-2">
           
+          {/* Active Routes Map */}
+          <div className="space-y-4">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Monitoreo Satelital (GPS)</h3>
+            <div className="w-full bg-white p-4 rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+              <div className="w-full h-72 rounded-2xl overflow-hidden bg-slate-100 relative">
+                <MapContainer center={[19.1738, -96.1342]} zoom={10} style={{ width: '100%', height: '100%' }} zoomControl={false}>
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  <MapController positions={selectedRouteId ? getRouteForId(selectedRouteId) : [[19.1738, -96.1342], [19.1600, -96.1200], [19.1022, -96.1089]]} />
+                  <Polyline 
+                    key={selectedRouteId || 'default'}
+                    positions={selectedRouteId ? getRouteForId(selectedRouteId) : [[19.1738, -96.1342], [19.1600, -96.1200], [19.1022, -96.1089]]} 
+                    color="#2563eb" 
+                    weight={5} 
+                    opacity={0.8} 
+                  />
+                </MapContainer>
+                <div className="absolute top-4 right-4 z-[400] bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200 shadow-sm flex items-center space-x-2">
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                  <span className="text-[9px] font-bold text-slate-700 uppercase tracking-wider">GPS Estable</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Active Units Grid */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Unidades en Ruta</h3>
@@ -147,9 +220,18 @@ export default function Logistics() {
               </span>
             </div>
 
+            {/* Toast feedback */}
+            {resolvedMsg && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-[11px] font-bold text-emerald-700 flex items-center space-x-2 animate-fade-in">
+                <span>✅</span>
+                <span>{resolvedMsg}</span>
+              </div>
+            )}
+
             <div className="space-y-3">
               {logisticsIncidences.map((inc) => {
                 const isResolved = inc.status === 'reviewed';
+                const isLoading = !!resolving[inc.id];
                 return (
                   <div 
                     key={inc.id} 
@@ -172,15 +254,23 @@ export default function Logistics() {
                     </div>
 
                     <button
-                      disabled={isResolved}
+                      disabled={isResolved || isLoading}
                       onClick={() => handleReviewIncident(inc.id, inc.title)}
-                      className={`px-3 py-1.5 font-bold text-[10px] rounded-lg transition-all ${
+                      className={`px-3 py-1.5 font-bold text-[10px] rounded-lg transition-all flex items-center space-x-1 ${
                         isResolved 
-                          ? 'bg-slate-100 text-slate-400 border border-slate-200' 
+                          ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed' 
+                          : isLoading
+                          ? 'bg-[#78281F]/60 text-white cursor-wait'
                           : 'bg-[#78281F] hover:bg-[#5E1F18] text-white shadow-sm'
                       }`}
                     >
-                      {isResolved ? 'Revisado' : 'Revisar'}
+                      {isLoading && (
+                        <svg className="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                        </svg>
+                      )}
+                      <span>{isResolved ? 'Revisado' : isLoading ? 'Procesando...' : 'Revisar'}</span>
                     </button>
                   </div>
                 );
@@ -286,8 +376,13 @@ export default function Logistics() {
         <div className="space-y-4 max-h-[300px] overflow-y-auto pr-0.5">
           {filteredHistory.map((route) => (
             <div 
-              key={route.id} 
-              className="p-4 bg-slate-50/70 border border-slate-100 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4"
+              key={route.id}
+              onClick={() => setSelectedRouteId(route.id)}
+              className={`p-4 border rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer transition-all ${
+                selectedRouteId === route.id 
+                  ? 'bg-blue-50/50 border-blue-300 shadow-sm' 
+                  : 'bg-slate-50/70 border-slate-100 hover:bg-slate-100/50'
+              }`}
             >
               <div className="space-y-1">
                 <div className="flex items-center space-x-2 flex-wrap gap-y-1">

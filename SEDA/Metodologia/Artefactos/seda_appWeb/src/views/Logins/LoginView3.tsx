@@ -3,14 +3,29 @@ import { useStore } from '../../context/useStore';
 import PrivacyConsent from '../../components/PrivacyConsent';
 
 export default function LoginView3() {
-  const { login } = useStore();
+  const { login, isLoading, error, clearError } = useStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [localError, setLocalError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(email || 'demo@seda.org');
+    setLocalError('');
+    clearError();
+
+    if (!email || !password) {
+      setLocalError('Ingrese su correo y contraseña.');
+      return;
+    }
+
+    try {
+      await login(email, password);
+    } catch (err) {
+      setLocalError((err as Error).message || 'Credenciales inválidas.');
+    }
   };
+
+  const displayError = localError || error;
 
   return (
     <div className="min-h-screen w-full flex bg-[#FDF8F5] font-sans relative overflow-hidden">
@@ -24,6 +39,16 @@ export default function LoginView3() {
             Bienvenido de nuevo
           </p>
 
+          {/* Error message */}
+          {displayError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs font-bold text-red-700 flex items-center space-x-2 animate-fade-in">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <span>{displayError}</span>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="w-full space-y-6">
             {/* Email Input */}
             <div className="relative">
@@ -35,7 +60,8 @@ export default function LoginView3() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
-                className="w-full h-12 px-5 rounded-full border border-slate-200 focus:outline-none focus:border-peach-accent text-sm font-semibold text-slate-700 bg-transparent placeholder:text-slate-300"
+                disabled={isLoading}
+                className="w-full h-12 px-5 rounded-full border border-slate-200 focus:outline-none focus:border-peach-accent text-sm font-semibold text-slate-700 bg-transparent placeholder:text-slate-300 disabled:opacity-50"
               />
             </div>
 
@@ -48,8 +74,9 @@ export default function LoginView3() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="tu@email.com"
-                className="w-full h-12 px-5 rounded-full border border-slate-200 focus:outline-none focus:border-peach-accent text-sm font-semibold text-slate-700 bg-transparent placeholder:text-slate-300"
+                placeholder="••••••••"
+                disabled={isLoading}
+                className="w-full h-12 px-5 rounded-full border border-slate-200 focus:outline-none focus:border-peach-accent text-sm font-semibold text-slate-700 bg-transparent placeholder:text-slate-300 disabled:opacity-50"
               />
             </div>
 
@@ -83,10 +110,23 @@ export default function LoginView3() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full h-12 bg-[#9A6B4C] hover:bg-[#855A3E] text-white font-bold rounded-full transition-all duration-200 flex items-center justify-center space-x-2 shadow-md shadow-[#9A6B4C]/25 text-sm"
+              disabled={isLoading}
+              className="w-full h-12 bg-[#9A6B4C] hover:bg-[#855A3E] text-white font-bold rounded-full transition-all duration-200 flex items-center justify-center space-x-2 shadow-md shadow-[#9A6B4C]/25 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <span>Ingresar</span>
-              <span className="text-white/80 font-normal">&gt;</span>
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  <span>Verificando...</span>
+                </>
+              ) : (
+                <>
+                  <span>Ingresar</span>
+                  <span className="text-white/80 font-normal">&gt;</span>
+                </>
+              )}
             </button>
           </form>
 
@@ -130,7 +170,7 @@ export default function LoginView3() {
         {/* Content Container */}
         <div className="relative z-10 flex flex-col items-center justify-center text-center p-12 max-w-lg">
           {/* Outlined SEDA Logo */}
-          <h1 
+          <h1
             className="text-8xl font-black tracking-widest text-transparent select-none mb-4"
             style={{ WebkitTextStroke: '2px rgba(255, 255, 255, 0.95)' }}
           >

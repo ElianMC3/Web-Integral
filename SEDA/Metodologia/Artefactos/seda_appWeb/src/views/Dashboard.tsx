@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useStore } from '../context/useStore';
-import { 
-  TrendingUp, 
-  Calendar, 
-  ThermometerSnowflake, 
-  Truck, 
-  AlertTriangle, 
-  PlusCircle, 
-  Box, 
+import {
+  TrendingUp,
+  Calendar,
+  ThermometerSnowflake,
+  Truck,
+  AlertTriangle,
+  PlusCircle,
+  Box,
   Compass,
   MessageSquare,
   Send,
@@ -21,7 +21,7 @@ interface ChatMsg { id: number; from: 'me' | 'conductor'; text: string; time: st
 
 function FloatingChat({ isOpen, onClose, contactName }: { isOpen: boolean; onClose: () => void; contactName: string }) {
   const [messages, setMessages] = useState<ChatMsg[]>([
-    { id: 1, from: 'conductor', text: `Hola, soy ${contactName}. ¿En qué puedo ayudarte?`, time: '10:42 AM' }
+    { id: 1, from: 'conductor', text: ` ${contactName}.`, time: '' }
   ]);
   const [input, setInput] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
@@ -64,7 +64,7 @@ function FloatingChat({ isOpen, onClose, contactName }: { isOpen: boolean; onClo
     <div className="fixed bottom-6 right-6 z-[200] flex flex-col animate-slide-up" style={{ width: '320px' }}>
       {/* Chat window */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col" style={{ maxHeight: isMinimized ? 'auto' : '420px' }}>
-        
+
         {/* Chat Header */}
         <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
           <div className="flex items-center space-x-2.5">
@@ -101,11 +101,10 @@ function FloatingChat({ isOpen, onClose, contactName }: { isOpen: boolean; onClo
             <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50" style={{ minHeight: '240px', maxHeight: '240px' }}>
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex flex-col ${msg.from === 'me' ? 'items-end' : 'items-start'}`}>
-                  <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-[11px] font-semibold leading-relaxed ${
-                    msg.from === 'me'
+                  <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-[11px] font-semibold leading-relaxed ${msg.from === 'me'
                       ? 'bg-blue-600 text-white rounded-br-sm'
                       : 'bg-white text-slate-700 border border-slate-100 shadow-sm rounded-bl-sm'
-                  }`}>
+                    }`}>
                     {msg.text}
                   </div>
                   <span className="text-[8px] text-slate-400 font-bold mt-1 px-1">{msg.time}</span>
@@ -143,9 +142,9 @@ function FloatingChat({ isOpen, onClose, contactName }: { isOpen: boolean; onClo
 
 // ─── Main Dashboard Component ────────────────────────────────────────────────
 export default function Dashboard() {
-  const { 
-    setTab, 
-    operationalAlerts, 
+  const {
+    setTab,
+    operationalAlerts,
     resolveOperationalAlert,
     donations
   } = useStore();
@@ -349,13 +348,12 @@ export default function Dashboard() {
 
               <div className="space-y-3">
                 {operationalAlerts.filter(a => !a.resolved).map((alert) => (
-                  <div 
-                    key={alert.id} 
-                    className={`p-4 rounded-2xl border transition-all duration-300 ${
-                      alert.level === 'URGENTE' 
-                        ? 'bg-red-50/50 border-red-100 text-red-900' 
+                  <div
+                    key={alert.id}
+                    className={`p-4 rounded-2xl border transition-all duration-300 ${alert.level === 'URGENTE'
+                        ? 'bg-red-50/50 border-red-100 text-red-900'
                         : 'bg-amber-50/50 border-amber-100 text-amber-900'
-                    }`}
+                      }`}
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex items-start space-x-3">
@@ -365,9 +363,8 @@ export default function Dashboard() {
                         <div>
                           <div className="flex items-center space-x-2">
                             <h4 className="text-xs font-extrabold">{alert.title}</h4>
-                            <span className={`px-2 py-0.5 rounded-full text-[8px] font-extrabold uppercase ${
-                              alert.level === 'URGENTE' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
-                            }`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[8px] font-extrabold uppercase ${alert.level === 'URGENTE' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                              }`}>
                               {alert.level}
                             </span>
                           </div>
@@ -380,13 +377,13 @@ export default function Dashboard() {
                       <div className="flex items-center space-x-2">
                         {alert.type === 'caducidad' ? (
                           <>
-                            <button 
+                            <button
                               onClick={() => resolveOperationalAlert(alert.id, 'Asignado a ruta rápida')}
                               className="bg-red-600 hover:bg-red-700 text-white font-bold text-[10px] px-3 py-1.5 rounded-lg transition-all"
                             >
                               Asignar a ruta rápida
                             </button>
-                            <button 
+                            <button
                               onClick={() => resolveOperationalAlert(alert.id, 'Descartado por caducidad')}
                               className="bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 font-bold text-[10px] px-3 py-1.5 rounded-lg transition-all"
                             >
@@ -396,14 +393,14 @@ export default function Dashboard() {
                         ) : (
                           <>
                             {/* ── "Contactar" abre el chat flotante ── */}
-                            <button 
+                            <button
                               onClick={() => openChat(alert.contactName || 'Conductor Desconocido')}
                               className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-[10px] px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1"
                             >
                               <MessageSquare className="w-3.5 h-3.5" />
                               <span>Contactar</span>
                             </button>
-                            <button 
+                            <button
                               onClick={() => resolveOperationalAlert(alert.id, 'Re-enrutado')}
                               className="bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 font-bold text-[10px] px-3 py-1.5 rounded-lg transition-all"
                             >

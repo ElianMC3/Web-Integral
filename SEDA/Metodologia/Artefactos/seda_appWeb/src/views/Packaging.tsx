@@ -23,18 +23,47 @@ import {
 
 // ─── Modal: Nueva Tarea de Lote ──────────────────────────────────────────────
 function NuevaTareaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { fetchLotes } = useStore();
   const [form, setForm] = useState({
     titulo: '', lote: '', tipo: 'No Perecederos', peso: '',
     destino: '', responsable: '', prioridad: 'Normal',
     fecha: new Date().toISOString().split('T')[0], instrucciones: ''
   });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   const change = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`✅ Tarea "${form.titulo}" creada para lote ${form.lote}.`);
-    onClose();
+    setError('');
+    setSaving(true);
+    try {
+      // Call the API directly to create the lote
+      const token = localStorage.getItem('seda_token');
+      const res = await fetch('/api/lotes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          title: form.titulo,
+          donor: form.destino || 'Sin especificar',
+          weight: form.peso ? `${form.peso}kg` : 'Sin especificar',
+          due_date: form.fecha,
+          status: form.responsable ? 'Asignado' : 'Sin asignar',
+          columna: 'PENDIENTE',
+          assigned_to: form.responsable || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Error al crear tarea');
+      await fetchLotes(); // Refresh kanban board
+      onClose();
+      setForm({ titulo: '', lote: '', tipo: 'No Perecederos', peso: '', destino: '', responsable: '', prioridad: 'Normal', fecha: new Date().toISOString().split('T')[0], instrucciones: '' });
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -60,6 +89,11 @@ function NuevaTareaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-[11px] font-bold text-red-700">
+              ❌ {error}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             {/* Título */}
             <div className="space-y-1.5 col-span-2">
@@ -70,7 +104,7 @@ function NuevaTareaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
             {/* Número de lote */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1"><Barcode className="w-3 h-3" /><span>Número de Lote</span></label>
-              <input required value={form.lote} onChange={e => change('lote', e.target.value)} placeholder="Ej. L-48291" className="w-full h-10 px-4 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-xs font-semibold text-slate-700 bg-slate-50/50 placeholder:text-slate-300" />
+              <input required value={form.lote} onChange={e => change('lote', e.target.value)} placeholder="Ej. L-48291" maxLength={50} className="w-full h-10 px-4 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-xs font-semibold text-slate-700 bg-slate-50/50 placeholder:text-slate-300" />
             </div>
 
             {/* Tipo */}
@@ -88,7 +122,13 @@ function NuevaTareaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
             {/* Peso */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Peso Estimado (kg)</label>
-              <input type="number" value={form.peso} onChange={e => change('peso', e.target.value)} placeholder="0.00" className="w-full h-10 px-4 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-xs font-semibold text-slate-700 bg-slate-50/50 placeholder:text-slate-300" />
+              <input required type="number" min="0" step="0.01" value={form.peso} onChange={e => change('peso', e.target.value)} 
+                onKeyDown={(e) => {
+                  if (!/^[0-9.]$/.test(e.key) && !['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
+                placeholder="0.00" className="w-full h-10 px-4 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-xs font-semibold text-slate-700 bg-slate-50/50 placeholder:text-slate-300" />
             </div>
 
             {/* Prioridad */}
@@ -108,7 +148,7 @@ function NuevaTareaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
             {/* Destino */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1"><MapPin className="w-3 h-3" /><span>Destino / Despensa</span></label>
-              <input value={form.destino} onChange={e => change('destino', e.target.value)} placeholder="Ej. Despensa Norte" className="w-full h-10 px-4 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-xs font-semibold text-slate-700 bg-slate-50/50 placeholder:text-slate-300" />
+              <input required value={form.destino} onChange={e => change('destino', e.target.value)} placeholder="Ej. Despensa Norte" maxLength={100} className="w-full h-10 px-4 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-xs font-semibold text-slate-700 bg-slate-50/50 placeholder:text-slate-300" />
             </div>
 
             {/* Responsable */}
@@ -126,7 +166,7 @@ function NuevaTareaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
             {/* Fecha límite */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1"><Calendar className="w-3 h-3" /><span>Fecha Límite</span></label>
-              <input type="date" value={form.fecha} onChange={e => change('fecha', e.target.value)} className="w-full h-10 px-4 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-xs font-semibold text-slate-700 bg-slate-50/50" />
+              <input required type="date" value={form.fecha} onChange={e => change('fecha', e.target.value)} className="w-full h-10 px-4 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-xs font-semibold text-slate-700 bg-slate-50/50" />
             </div>
 
             {/* Instrucciones */}
@@ -140,9 +180,12 @@ function NuevaTareaModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
             <button type="button" onClick={onClose} className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl transition-all">
               Cancelar
             </button>
-            <button type="submit" className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-600/10 transition-all flex items-center space-x-1.5">
-              <CheckCircle className="w-4 h-4" />
-              <span>Crear Tarea</span>
+            <button type="submit" disabled={saving} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-600/10 transition-all flex items-center space-x-1.5">
+              {saving ? (
+                <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg><span>Creando...</span></>
+              ) : (
+                <><CheckCircle className="w-4 h-4" /><span>Crear Tarea</span></>
+              )}
             </button>
           </div>
         </form>
@@ -295,6 +338,77 @@ function ImprimirEtiquetasModal({
   );
 }
 
+// ─── Modal: Asignar Responsable ──────────────────────────────────────────────
+function AsignarResponsableModal({ isOpen, onClose, lotes }: { isOpen: boolean; onClose: () => void; lotes: number }) {
+  const [responsable, setResponsable] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setTimeout(() => {
+      setSaving(false);
+      onClose();
+    }, 800);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in">
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-3xl border border-slate-100 shadow-2xl w-full max-w-sm overflow-hidden animate-slide-up">
+        <div className="flex justify-between items-center p-6 border-b border-slate-50 bg-gradient-to-r from-blue-50 to-white">
+          <div className="flex items-center space-x-3">
+            <div className="p-2.5 bg-blue-600 text-white rounded-xl shadow-sm shadow-blue-600/20">
+              <UserPlus className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-800">Asignar Responsable</h3>
+              <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">A bulto consolidado</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-xl transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1">
+              <User className="w-3 h-3" /><span>Responsable / Transportista</span>
+            </label>
+            <select required value={responsable} onChange={e => setResponsable(e.target.value)} className="w-full h-10 px-4 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-xs font-semibold text-slate-700 bg-slate-50/50">
+              <option value="">Selecciona un responsable...</option>
+              <option>Equipo Logística 1</option>
+              <option>Equipo Logística 2</option>
+              <option>Transportista A (Refrigerado)</option>
+              <option>Transportista B (Seco)</option>
+            </select>
+          </div>
+
+          <p className="text-[10px] text-slate-500 font-semibold bg-slate-50 p-3 rounded-xl border border-slate-100">
+            Se asignarán <b>{lotes}</b> lote(s) al responsable seleccionado.
+          </p>
+
+          <div className="flex justify-end space-x-3 pt-2">
+            <button type="button" onClick={onClose} className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl transition-all">
+              Cancelar
+            </button>
+            <button type="submit" disabled={saving || !responsable} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-600/10 transition-all flex items-center space-x-1.5">
+              {saving ? (
+                <><svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg><span>Asignando...</span></>
+              ) : (
+                <><CheckCircle className="w-4 h-4" /><span>Asignar</span></>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function Packaging() {
   const { 
@@ -312,6 +426,8 @@ export default function Packaging() {
   // Modal states
   const [showNuevaTarea, setShowNuevaTarea] = useState(false);
   const [showImprimirEtiquetas, setShowImprimirEtiquetas] = useState(false);
+  const [showAsignarResponsable, setShowAsignarResponsable] = useState(false);
+  const [successToast, setSuccessToast] = useState('');
 
   const [criticalAlerts, setCriticalAlerts] = useState([
     { id: 'L-882', name: 'Lácteos - Lote 882', timer: 'Vence en 2h', desc: 'Mesa de clasificación 2 detenida.', severity: 'red' },
@@ -360,8 +476,25 @@ export default function Packaging() {
         items={consolidatedItems}
         total={totalConsolidatedWeight}
       />
+      <AsignarResponsableModal 
+        isOpen={showAsignarResponsable}
+        onClose={() => {
+          setShowAsignarResponsable(false);
+          setSuccessToast('✅ Responsable asignado exitosamente al bulto.');
+          setTimeout(() => setSuccessToast(''), 3000);
+          clearConsolidation(); // Limpia los items después de asignar
+        }}
+        lotes={consolidatedItems.length}
+      />
 
       <div className="p-8 space-y-8 animate-fade-in select-none">
+        
+        {/* Toast feedback */}
+        {successToast && (
+          <div className="fixed bottom-6 right-6 z-50 p-4 bg-emerald-50 border border-emerald-200 rounded-xl shadow-lg shadow-emerald-500/10 text-xs font-bold text-emerald-700 flex items-center space-x-2 animate-slide-up">
+            <span>{successToast}</span>
+          </div>
+        )}
         
         {/* Top operational summary metrics row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -493,6 +626,20 @@ export default function Packaging() {
                                   <ArrowLeft className="w-3 h-3" />
                                 </button>
                               )}
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  addConsolidationItem({
+                                    id: task.id,
+                                    category: task.title,
+                                    weight: parseInt(task.weight) || 0
+                                  });
+                                }}
+                                className="p-1 hover:bg-slate-100 rounded text-blue-500"
+                                title="Añadir a Consolidación Rápida"
+                              >
+                                <Package className="w-3 h-3" />
+                              </button>
                               {col.id !== 'CONTROL_CALIDAD' && (
                                 <button 
                                   onClick={(e) => { e.stopPropagation(); moveKanbanTask(task.id, col.id === 'PENDIENTE' ? 'EN_PROCESO' : 'CONTROL_CALIDAD'); }}
@@ -557,7 +704,24 @@ export default function Packaging() {
             </div>
 
             {/* Consolidación Rápida */}
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+            <div 
+              className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4"
+              onDragOver={handleDragOver}
+              onDrop={(e) => {
+                e.preventDefault();
+                const id = e.dataTransfer.getData('text/plain');
+                if (id) {
+                  const task = kanbanTasks.find(t => t.id === id);
+                  if (task) {
+                    addConsolidationItem({
+                      id: task.id,
+                      category: task.title,
+                      weight: parseInt(task.weight) || 0
+                    });
+                  }
+                }
+              }}
+            >
               <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-widest border-b border-slate-50 pb-2">
                 Consolidación Rápida
               </h3>
@@ -620,7 +784,11 @@ export default function Packaging() {
                   <span>Imprimir Etiquetas</span>
                 </button>
 
-                <button className="w-full h-10 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs rounded-xl transition-all flex items-center justify-center space-x-1.5">
+                <button 
+                  onClick={() => setShowAsignarResponsable(true)}
+                  disabled={consolidatedItems.length === 0}
+                  className="w-full h-10 bg-white hover:bg-slate-50 disabled:opacity-50 text-slate-700 border border-slate-200 font-bold text-xs rounded-xl transition-all flex items-center justify-center space-x-1.5"
+                >
                   <UserPlus className="w-4 h-4 text-slate-400" />
                   <span>Asignar Responsable</span>
                 </button>
