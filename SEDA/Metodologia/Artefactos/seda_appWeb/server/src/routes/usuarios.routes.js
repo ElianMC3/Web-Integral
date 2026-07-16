@@ -46,6 +46,7 @@ const controller = require('../controllers/usuarios.controller');
  *               $ref: '#/components/schemas/Error500'
  */
 router.get('/', controller.getAll);
+router.post('/', controller.create);
 
 /**
  * @swagger
